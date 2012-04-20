@@ -27,4 +27,4 @@ endif(APPLE)
 add_definitions("-Wall -Wextra -Weffc++ -pedantic")
 
 install (TARGETS dazeus-irc DESTINATION lib)
-install (FILES network.h server.h user.h DESTINATION include)
+install (FILES network.h server.h DESTINATION include)

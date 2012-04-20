@@ -5,7 +5,6 @@
 
 #include "network.h"
 #include "server.h"
-#include "user.h"
 #include "utils.h"
 
 std::string Network::toString(const Network *n)
@@ -30,12 +29,12 @@ Network::Network( const NetworkConfig *c )
 : activeServer_(0)
 , config_(c)
 , undesirables_()
-, me_(0)
 , deleteServer_(false)
 , identifiedUsers_()
 , knownUsers_()
 , topics_()
 , networkListeners_()
+, nick_(c->nickName)
 {}
 
 
@@ -191,8 +190,7 @@ void Network::connectToServer( ServerConfig *server, bool reconnect )
 
 void Network::joinedChannel(const std::string &user, const std::string &receiver)
 {
-	User u(user, this);
-	if(u.isMe() && !contains(knownUsers_, strToLower(receiver))) {
+	if(user == nick_ && !contains(knownUsers_, strToLower(receiver))) {
 		knownUsers_[strToLower(receiver)] = std::vector<std::string>();
 	}
 	std::vector<std::string> users = knownUsers_[strToLower(receiver)];
@@ -202,14 +200,13 @@ void Network::joinedChannel(const std::string &user, const std::string &receiver
 
 void Network::partedChannel(const std::string &user, const std::string &, const std::string &receiver)
 {
-	User u(user, this);
-	if(u.isMe()) {
+	if(user == nick_) {
 		knownUsers_.erase(strToLower(receiver));
 	} else {
 		erase(knownUsers_[strToLower(receiver)], strToLower(user));
 	}
-	if(!isKnownUser(u.nick())) {
-		erase(identifiedUsers_, strToLower(u.nick()));
+	if(!isKnownUser(user)) {
+		erase(identifiedUsers_, strToLower(user));
 	}
 }
 
@@ -229,10 +226,9 @@ void Network::slotNickChanged( const std::string &origin, const std::string &nic
 	erase(identifiedUsers_, strToLower(origin));
 	erase(identifiedUsers_, strToLower(nick));
 
-	User u(origin, this);
-	if(u.isMe()) {
-		user()->setNick(nick);
-	}
+	if(nick_ == origin)
+		nick_ = nick;
+
 	std::map<std::string,std::vector<std::string> >::iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
 		if(contains(it->second, strToLower(origin))) {
@@ -244,14 +240,13 @@ void Network::slotNickChanged( const std::string &origin, const std::string &nic
 
 void Network::kickedChannel(const std::string&, const std::string &user, const std::string&, const std::string &receiver)
 {
-	User u(user, this);
-	if(u.isMe()) {
+	if(user == nick_) {
 		knownUsers_.erase(strToLower(receiver));
 	} else {
-		erase(knownUsers_[strToLower(receiver)], strToLower(u.nick()));
+		erase(knownUsers_[strToLower(receiver)], strToLower(user));
 	}
-	if(!isKnownUser(u.nick())) {
-		erase(identifiedUsers_, strToLower(u.nick()));
+	if(!isKnownUser(user)) {
+		erase(identifiedUsers_, strToLower(user));
 	}
 }
 
@@ -333,15 +328,9 @@ const std::vector<ServerConfig*> &Network::servers() const
 }
 
 
-User *Network::user()
+std::string Network::nick() const
 {
-	if( me_ == 0 )
-	{
-		me_ = new User( config_->nickName, config_->nickName,
-		    "__local__", this );
-	}
-
-	return me_;
+	return nick_;
 }
 
 

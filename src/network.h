@@ -6,12 +6,12 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "user.h"
 #include <vector>
 #include <sys/select.h> /* fd_set */
 #include <string>
 #include <map>
 
+class Network;
 class Server;
 
 struct ServerConfig;
@@ -83,7 +83,7 @@ class Network
 
     bool                        autoConnectEnabled() const;
     const std::vector<ServerConfig*> &servers() const;
-    User                       *user();
+    std::string                 nick() const;
     Server                     *activeServer() const;
     const NetworkConfig        *config() const;
     int                         serverUndesirability( const ServerConfig *sc ) const;
@@ -118,12 +118,12 @@ class Network
     Server               *activeServer_;
     const NetworkConfig  *config_;
     std::map<const ServerConfig*,int> undesirables_;
-    User                 *me_;
     bool                  deleteServer_;
     std::vector<std::string>        identifiedUsers_;
     std::map<std::string,std::vector<std::string> > knownUsers_;
     std::map<std::string,std::string> topics_;
     std::vector<NetworkListener*>   networkListeners_;
+    std::string           nick_;
 
     void onFailedConnection();
     void joinedChannel(const std::string &user, const std::string &receiver);
