@@ -6,9 +6,6 @@
 
 include(LibFindMacros)
 
-# Use pkg-config to get hints about paths
-libfind_pkg_check_modules(LibIRCClient_PKGCONF LibIRCClient)
-
 # Include dir
 find_path(LibIRCClient_INCLUDE_DIR
   NAMES libircclient.h
