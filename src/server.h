@@ -15,7 +15,6 @@
 
 #include "user.h"
 #include "network.h"
-#include "server.h"
 
 // #define SERVER_FULLDEBUG
 
