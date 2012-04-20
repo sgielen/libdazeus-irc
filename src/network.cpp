@@ -6,6 +6,7 @@
 #include "network.h"
 #include "server.h"
 #include "utils.h"
+#include <stdio.h>
 
 std::string Network::toString(const Network *n)
 {
