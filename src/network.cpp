@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Sjors Gielen, 2010
+ * Copyright (c) Sjors Gielen, 2010-2012
  * See LICENSE for license.
  */
 

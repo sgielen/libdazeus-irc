@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012, Sjors Gielen <dazeus@sjorsgielen.nl>
+ * Copyright (c) Sjors Gielen, 2010-2012
  * See LICENSE for license.
  */
 
