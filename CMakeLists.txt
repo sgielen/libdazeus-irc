@@ -8,11 +8,15 @@ set( LIBDAZEUS_IRC_VERSION_MAJOR "1" )
 set( LIBDAZEUS_IRC_VERSION_MINOR "0" )
 set( LIBDAZEUS_IRC_VERSION "${LIBDAZEUS_IRC_VERSION_MAJOR}.${LIBDAZEUS_IRC_VERSION_MINOR}" )
 
-if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-	set(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output directory for libraries")
-endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+SET(LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "The place where the library and pkgconfig files will be stored")
+SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "The place where the header files will be stored")
 
 find_package(LibIRCClient REQUIRED)
 include_directories(${LibIRCClient_INCLUDE_DIRS})
 
 add_subdirectory(src)
+
+# pkg-config file
+configure_file(libdazeus-irc.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libdazeus-irc.pc)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libdazeus-irc.pc
+         DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
