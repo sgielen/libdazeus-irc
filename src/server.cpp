@@ -16,6 +16,8 @@
 
 // #define DEBUG
 
+#define IRC (irc_session_t*)irc_
+
 std::string Server::toString(const Server *s)
 {
 	std::stringstream res;
@@ -44,7 +46,7 @@ Server::Server( const ServerConfig *c, Network *n )
 
 Server::~Server()
 {
-	irc_destroy_session(irc_);
+	irc_destroy_session(IRC);
 }
 
 const ServerConfig *Server::config() const
@@ -88,48 +90,48 @@ std::string Server::motd() const
 }
 
 void Server::quit( const std::string &reason ) {
-	irc_cmd_quit(irc_, reason.c_str());
+	irc_cmd_quit(IRC, reason.c_str());
 }
 
 void Server::whois( const std::string &destination ) {
-	irc_cmd_whois(irc_, destination.c_str());
+	irc_cmd_whois(IRC, destination.c_str());
 }
 
 void Server::ctcpAction( const std::string &destination, const std::string &message ) {
-	irc_cmd_me(irc_, destination.c_str(), message.c_str());
+	irc_cmd_me(IRC, destination.c_str(), message.c_str());
 }
 
 void Server::names( const std::string &channel ) {
-	irc_cmd_names(irc_, channel.c_str());
+	irc_cmd_names(IRC, channel.c_str());
 }
 
 void Server::ctcpRequest( const std::string &destination, const std::string &message ) {
-	irc_cmd_ctcp_request(irc_, destination.c_str(), message.c_str());
+	irc_cmd_ctcp_request(IRC, destination.c_str(), message.c_str());
 }
 
 void Server::join( const std::string &channel, const std::string &key ) {
-	irc_cmd_join(irc_, channel.c_str(), key.c_str());
+	irc_cmd_join(IRC, channel.c_str(), key.c_str());
 }
 
 void Server::part( const std::string &channel, const std::string &) {
 	// TODO: also use "reason" here (patch libircclient for this)
-	irc_cmd_part(irc_, channel.c_str());
+	irc_cmd_part(IRC, channel.c_str());
 }
 
 void Server::message( const std::string &destination, const std::string &message ) {
 	std::stringstream ss(message);
 	std::string line;
 	while(std::getline(ss, line)) {
-		irc_cmd_msg(irc_, destination.c_str(), line.c_str());
+		irc_cmd_msg(IRC, destination.c_str(), line.c_str());
 	}
 }
 
 void Server::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
-	irc_add_select_descriptors(irc_, in_set, out_set, maxfd);
+	irc_add_select_descriptors(IRC, in_set, out_set, maxfd);
 }
 
 void Server::processDescriptors(fd_set *in_set, fd_set *out_set) {
-	irc_process_select_descriptors(irc_, in_set, out_set);
+	irc_process_select_descriptors(IRC, in_set, out_set);
 }
 
 void Server::slotNumericMessageReceived( const std::string &origin, unsigned int code,
@@ -211,7 +213,6 @@ void Server::slotIrcEvent(const std::string &event, const std::string &origin, c
 
 void irc_eventcode_callback(irc_session_t *s, unsigned int event, const char *origin, const char **p, unsigned int count) {
 	Server *server = (Server*) irc_get_ctx(s);
-	assert(server->getIrc() == s);
 	std::vector<std::string> params;
 	for(unsigned int i = 0; i < count; ++i) {
 		params.push_back(std::string(p[i]));
@@ -221,7 +222,6 @@ void irc_eventcode_callback(irc_session_t *s, unsigned int event, const char *or
 
 void irc_callback(irc_session_t *s, const char *e, const char *o, const char **params, unsigned int count) {
 	Server *server = (Server*) irc_get_ctx(s);
-	assert(server->getIrc() == s);
 
 	std::string event(e);
 	// From libircclient docs, but CHANNEL_NOTICE is bullshit...
@@ -285,22 +285,18 @@ void Server::connectToServer()
 	callbacks.event_dcc_chat_req = NULL;
 	callbacks.event_dcc_send_req = NULL;
 
-	irc_ = irc_create_session(&callbacks);
+	irc_ = (void*)irc_create_session(&callbacks);
 	if(!irc_) {
 		std::cerr << "Couldn't create IRC session in Server.";
 		abort();
 	}
-	irc_set_ctx(irc_, this);
+	irc_set_ctx(IRC, this);
 
 	assert( config_->network->nickName.length() != 0 );
-	irc_connect(irc_, config_->host.c_str(),
+	irc_connect(IRC, config_->host.c_str(),
 		config_->port,
 		config_->network->password.c_str(),
 		config_->network->nickName.c_str(),
 		config_->network->userName.c_str(),
 		config_->network->fullName.c_str());
-}
-
-irc_session_t *Server::getIrc() const {
-	return irc_;
 }

@@ -11,8 +11,6 @@
 #include <vector>
 #include <string>
 
-#include <libircclient.h>
-
 #include "network.h"
 
 // #define SERVER_FULLDEBUG
@@ -45,7 +43,6 @@ public:
 	std::string motd() const;
 	void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
 	void processDescriptors(fd_set *in_set, fd_set *out_set);
-	irc_session_t *getIrc() const;
 	static std::string toString(const Server*);
 
 	void connectToServer();
@@ -70,7 +67,7 @@ private:
 	const ServerConfig *config_;
 	std::string   motd_;
 	Network  *network_;
-	irc_session_t *irc_;
+	void *irc_;
 	std::string in_whois_for_;
 	bool whois_identified_;
 	std::vector<std::string> in_names_;
