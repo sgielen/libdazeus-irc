@@ -264,6 +264,7 @@ void Server::connectToServer()
 	assert( !config_->network->nickName.length() == 0 );
 
 	irc_callbacks_t callbacks;
+	memset(&callbacks, 0, sizeof(irc_callbacks_t));
 	callbacks.event_connect = irc_callback;
 	callbacks.event_nick = irc_callback;
 	callbacks.event_quit = irc_callback;
@@ -282,8 +283,6 @@ void Server::connectToServer()
 	callbacks.event_ctcp_action = irc_callback;
 	callbacks.event_unknown = irc_callback;
 	callbacks.event_numeric = irc_eventcode_callback;
-	callbacks.event_dcc_chat_req = NULL;
-	callbacks.event_dcc_send_req = NULL;
 
 	irc_ = (void*)irc_create_session(&callbacks);
 	if(!irc_) {
