@@ -224,9 +224,11 @@ void irc_callback(irc_session_t *s, const char *e, const char *o, const char **p
 	Server *server = (Server*) irc_get_ctx(s);
 
 	std::string event(e);
-	// From libircclient docs, but CHANNEL_NOTICE is bullshit...
+	// From libircclient docs, but CHANNEL_* is bullshit...
 	if(event == "CHANNEL_NOTICE") {
 		event = "NOTICE";
+	} else if(event == "CHANNEL") {
+		event = "PRIVMSG";
 	}
 
 	// for now, keep these std::strings:
