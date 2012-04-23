@@ -225,9 +225,11 @@ void irc_callback(irc_session_t *s, const char *e, const char *o, const char **p
 	Server *server = (Server*) irc_get_ctx(s);
 
 	std::string event(e);
-	// From libircclient docs, but CHANNEL_NOTICE is bullshit...
+	// From libircclient docs, but CHANNEL_* is bullshit...
 	if(event == "CHANNEL_NOTICE") {
 		event = "NOTICE";
+	} else if(event == "CHANNEL") {
+		event = "PRIVMSG";
 	}
 
 	// for now, keep these std::strings:
@@ -265,6 +267,7 @@ void Server::connectToServer()
 	assert( !config_->network->nickName.length() == 0 );
 
 	irc_callbacks_t callbacks;
+	memset(&callbacks, 0, sizeof(irc_callbacks_t));
 	callbacks.event_connect = irc_callback;
 	callbacks.event_nick = irc_callback;
 	callbacks.event_quit = irc_callback;
@@ -275,6 +278,9 @@ void Server::connectToServer()
 	callbacks.event_topic = irc_callback;
 	callbacks.event_kick = irc_callback;
 	callbacks.event_channel = irc_callback;
+#if LIBIRC_VERSION_HIGH > 1 || LIBIRC_VERSION_LOW >= 6
+	callbacks.event_channel_notice = irc_callback;
+#endif
 	callbacks.event_privmsg = irc_callback;
 	callbacks.event_notice = irc_callback;
 	callbacks.event_invite = irc_callback;
@@ -283,8 +289,6 @@ void Server::connectToServer()
 	callbacks.event_ctcp_action = irc_callback;
 	callbacks.event_unknown = irc_callback;
 	callbacks.event_numeric = irc_eventcode_callback;
-	callbacks.event_dcc_chat_req = NULL;
-	callbacks.event_dcc_send_req = NULL;
 
 	irc_ = (void*)irc_create_session(&callbacks);
 	if(!irc_) {

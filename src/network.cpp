@@ -16,7 +16,7 @@ std::string Network::toString(const Network *n)
 		res << "0";
 	} else {
 		const NetworkConfig *nc = n->config();
-		res << nc->displayName << ":" << Server::toString(n->activeServer());
+		res << nc->displayName << ", " << Server::toString(n->activeServer());
 	}
 	res << "]";
 
