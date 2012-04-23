@@ -10,6 +10,7 @@
 // libircclient.h needs cstdlib, don't remove the inclusion
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <libircclient.h>
 
 #include "server.h"
