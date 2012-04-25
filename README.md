@@ -14,3 +14,7 @@ Build instructions
     cd build
     cmake ..
     make
+
+You may want to run the test suite:
+
+    make test
