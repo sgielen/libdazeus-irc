@@ -107,6 +107,8 @@ class Network
     void serverIsActuallyOkay( const ServerConfig *sc );
     void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
     void processDescriptors(fd_set *in_set, fd_set *out_set);
+    void run();
+    static void run(std::vector<Network*> networks);
 
   private:
     // explicitly disable copy constructor

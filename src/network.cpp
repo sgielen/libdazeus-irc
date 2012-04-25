@@ -7,6 +7,7 @@
 #include "server.h"
 #include "utils.h"
 #include <stdio.h>
+#include <sys/select.h>
 
 std::string Network::toString(const Network *n)
 {
@@ -454,5 +455,54 @@ void Network::processDescriptors(fd_set *in_set, fd_set *out_set) {
 		delete activeServer_;
 		activeServer_ = 0;
 		connectToNetwork();
+	}
+}
+
+void Network::run() {
+	std::vector<Network*> nets;
+	nets << this;
+	Network::run(nets);
+}
+
+void Network::run(std::vector<Network*> networks) {
+	fd_set sockets, out_sockets;
+	int highest;
+	std::vector<Network*>::const_iterator nit;
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	while(1) {
+		highest = 0;
+		FD_ZERO(&sockets);
+		FD_ZERO(&out_sockets);
+		for(nit = networks.begin(); nit != networks.end(); ++nit) {
+			if((*nit)->activeServer()) {
+				int ircmaxfd = 0;
+				(*nit)->addDescriptors(&sockets, &out_sockets, &ircmaxfd);
+				if(ircmaxfd > highest)
+					highest = ircmaxfd;
+			}
+		}
+
+		// If all networks are disconnected, nothing will happen
+		// anymore; even the listeners won't be triggered anymore.
+		// In such a case, break the event loop
+		if(highest == 0) {
+			return;
+		}
+
+		int socks = select(highest + 1, &sockets, &out_sockets, NULL, &timeout);
+		if(socks < 0) {
+			perror("select() failed");
+			return;
+		}
+		else if(socks == 0) {
+			continue;
+		}
+		for(nit = networks.begin(); nit != networks.end(); ++nit) {
+			if((*nit)->activeServer()) {
+				(*nit)->processDescriptors(&sockets, &out_sockets);
+			}
+		}
 	}
 }
