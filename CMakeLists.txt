@@ -24,3 +24,4 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libdazeus-irc.pc
 
 enable_testing()
 add_test(compile tests/compile)
+add_test(connect ${CMAKE_SOURCE_DIR}/tests/connect.pl tests/connect)
