@@ -7,3 +7,7 @@ target_link_libraries(compile ${TLIBS})
 
 add_executable(connect ${CMAKE_CURRENT_SOURCE_DIR}/connect.cpp)
 target_link_libraries(connect ${TLIBS})
+
+add_executable(reconnect ${CMAKE_CURRENT_SOURCE_DIR}/reconnect.cpp)
+target_link_libraries(reconnect ${TLIBS})
+
