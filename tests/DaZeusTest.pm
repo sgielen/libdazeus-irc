@@ -109,10 +109,11 @@ sub handle_child {
 			stopTest($pid);
 			exit 3;
 		} elsif($childinput =~ /^res (.*)$/) {
-			if($1 != 0) {
+			my $exit = $1;
+			if($exit != 0) {
 				warn "# Child failure\n";
 				stopTest($pid);
-				exit $1;
+				exit 1;
 			}
 			$$childdone = 1;
 		} else {
