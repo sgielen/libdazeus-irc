@@ -34,11 +34,6 @@ eval {
 				if($1 eq "connectone" && !$connectone) {
 					$connectone = 1;
 					debug("First connect registered. Allowing on network, then disconnecting");
-					print $irc ":server 001 connectone :Welcome to this test server\n";
-					print $irc ":server 375 connectone :server message of the day\n";
-					print $irc ":server 372 connectone :- MOTD\n";
-					print $irc ":server 376 connectone :End of message of the day.\n";
-					print $irc "ERROR :disconnecting you\n";
 					close $irc;
 					$irc = $ircd->accept();
 					debug("New connection accepted.");
@@ -53,11 +48,6 @@ eval {
 				} elsif($1 eq "connecttwo" && !$connecttwo) {
 					$connecttwo = 1;
 					debug("Second connect registered; reconnection worked. Succeeding test.");
-					print $irc ":server 001 connectone :Welcome to this test server\n";
-					print $irc ":server 375 connectone :server message of the day\n";
-					print $irc ":server 372 connectone :- MOTD\n";
-					print $irc ":server 376 connectone :End of message of the day.\n";
-					print $irc "ERROR :disconnecting you\n";
 					close $irc;
 					undef $irc;
 				} elsif($1 eq "connecttwo" && $connecttwo) {

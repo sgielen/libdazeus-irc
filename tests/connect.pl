@@ -60,11 +60,6 @@ eval {
 
 		if(serverdone() && !$childdone && $irc) {
 			# Disconnect so the child can exit
-			print $irc ":server 001 n1CKn4M3 :Welcome to this test server\n";
-			print $irc ":server 375 n1CKn4M3 :server message of the day\n";
-			print $irc ":server 372 n1CKn4M3 :- MOTD\n";
-			print $irc ":server 376 n1CKn4M3 :End of message of the day.\n";
-			print $irc "ERROR :Disconnecting you.\n";
 			close $irc;
 			undef $irc;
 		}
