@@ -11,3 +11,6 @@ target_link_libraries(connect ${TLIBS})
 add_executable(reconnect ${CMAKE_CURRENT_SOURCE_DIR}/reconnect.cpp)
 target_link_libraries(reconnect ${TLIBS})
 
+add_executable(connectevents ${CMAKE_CURRENT_SOURCE_DIR}/connectevents.cpp)
+target_link_libraries(connectevents ${TLIBS})
+
