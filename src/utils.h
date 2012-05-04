@@ -20,6 +20,7 @@ std::vector<std::string> split(const std::string &s, const std::string &sep);
 bool contains(std::string x, char v);
 // does X start with Y?
 bool startsWith(std::string x, std::string y, bool caseInsensitive);
+std::vector<std::string>::iterator find_ci(std::vector<std::string> &v, const std::string &s);
 
 template <typename Container, typename Key>
 bool contains(Container x, Key k) {
@@ -44,9 +45,9 @@ Value takeFirst(Container c) {
 }
 
 template <typename Value>
-typename std::map<std::string,Value>::const_iterator find_ci(const std::map<std::string,Value> &m, std::string s) {
+typename std::map<std::string,Value>::iterator find_ci(std::map<std::string,Value> &m, const std::string &s) {
 	std::string sl = strToLower(s);
-	typename std::map<std::string,Value>::const_iterator it;
+	typename std::map<std::string,Value>::iterator it;
 	for(it = m.begin(); it != m.end(); ++it) {
 		if(strToLower(it->first) == sl) {
 			return it;
@@ -55,6 +56,21 @@ typename std::map<std::string,Value>::const_iterator find_ci(const std::map<std:
 	return m.end();
 }
 
+template <typename Container, typename Key>
+bool contains_ci(Container x, Key s) {
+	return find_ci(x, s) != x.end();
+}
+
+template <typename Container>
+void erase_ci(Container &x, const std::string &s) {
+	std::string sl = strToLower(s);
+	typename Container::iterator it = find_ci(x, s);
+	// TODO: use erase-remove idiom
+	while(it != x.end()) {
+		x.erase(it);
+		it = find_ci(x, s);
+	}
+}
 
 template <typename Container>
 std::string join(Container c, std::string s) {

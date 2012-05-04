@@ -85,4 +85,14 @@ std::vector<std::string> &operator<<(std::vector<std::string> &x, const char *v)
 	return x;
 }
 
+std::vector<std::string>::iterator find_ci(std::vector<std::string> &v, const std::string &s) {
+	std::string sl = strToLower(s);
+	std::vector<std::string>::iterator it;
+	for(it = v.begin(); it != v.end(); ++it) {
+		if(strToLower(*it) == sl) {
+			return it;
+		}
+	}
+	return v.end();
+}
 
