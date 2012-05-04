@@ -18,8 +18,8 @@ struct ServerConfig;
 
 struct NetworkConfig {
   NetworkConfig(std::string n = std::string(), std::string d = std::string(),
-    std::string nick = std::string(), std::string user = std::string(),
-    std::string full = std::string(), std::string p = std::string(), bool a =
+    std::string nick = std::string("DaZeus"), std::string user = std::string("dazeus"),
+    std::string full = std::string("DaZeus"), std::string p = std::string(), bool a =
     false) : name(n), displayName(d), nickName(nick), userName(user),
     fullName(full), password(p), servers(), autoConnect(a) {}
   NetworkConfig(const NetworkConfig &s) : name(s.name),
