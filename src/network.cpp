@@ -366,7 +366,7 @@ void Network::flagUndesirableServer( const ServerConfig *sc )
 {
 	if(contains(undesirables_, sc))
 		undesirables_[sc] = undesirables_[sc] + 1;
-	undesirables_[sc] = 1;
+	else	undesirables_[sc] = 1;
 }
 
 void Network::serverIsActuallyOkay( const ServerConfig *sc )
