@@ -126,6 +126,10 @@ void Server::message( const std::string &destination, const std::string &message
 	}
 }
 
+void Server::ping() {
+	irc_send_raw(IRC, "PING");
+}
+
 void Server::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
 	irc_add_select_descriptors(IRC, in_set, out_set, maxfd);
 }
