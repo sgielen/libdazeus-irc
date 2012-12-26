@@ -121,6 +121,7 @@ std::map<std::string,Network::ChannelMode> Network::usersInChannel(std::string c
 struct ServerSorter {
 	private:
 	Network *n_;
+	std::map<const ServerConfig*, int> randomValues;
 
 	public:
 	ServerSorter(Network *n) : n_(n) {}
@@ -128,12 +129,25 @@ struct ServerSorter {
 		assert(c1->network == c2->network);
 		assert(c1->network == n_->config());
 
-		int prio1 = c1->priority - n_->serverUndesirability(c1);
-		int prio2 = c2->priority - n_->serverUndesirability(c2);
+		int prio1 = c1->priority + n_->serverUndesirability(c1);
+		int prio2 = c2->priority + n_->serverUndesirability(c2);
 
-		if( prio1 == prio2 ) // choose randomly
-			return (rand() % 2) == 0 ? -1 : 1;
-		return prio1 < prio2;
+		if(prio1 != prio2) {
+			return prio1 < prio2;
+		}
+
+		// Assign random values to ServerConfigs having the same
+		// corrected prio's. These need to be stored because a
+		// comparator must be consistent and transitive, so
+		// subsequent calls to the operator()() function must agree
+		// with the return value of this call.
+		if(!contains(randomValues, c1)) {
+			randomValues[c1] = rand();
+		}
+		if(!contains(randomValues, c2)) {
+			randomValues[c2] = rand();
+		}
+		return randomValues[c1] < randomValues[c2];
 	}
 };
 
