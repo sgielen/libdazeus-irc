@@ -20,16 +20,19 @@ struct NetworkConfig {
   NetworkConfig(std::string n = std::string(), std::string d = std::string(),
     std::string nick = std::string(), std::string user = std::string(),
     std::string full = std::string(), std::string p = std::string(), bool a =
-    false) : name(n), displayName(d), nickName(nick), userName(user),
-    fullName(full), password(p), servers(), autoConnect(a) {}
+    false, time_t ct = 10, time_t pt = 30) : name(n), displayName(d), nickName(nick), userName(user),
+    fullName(full), password(p), servers(), autoConnect(a), connectTimeout(ct),
+    pongTimeout(pt) {}
   NetworkConfig(const NetworkConfig &s) : name(s.name),
     displayName(s.displayName), nickName(s.nickName), userName(s.userName),
     fullName(s.fullName), password(s.password), servers(s.servers),
-    autoConnect(s.autoConnect) {}
+    autoConnect(s.autoConnect), connectTimeout(s.connectTimeout),
+    pongTimeout(s.pongTimeout) {}
   const NetworkConfig &operator=(const NetworkConfig &s) { name = s.name;
     displayName = s.displayName; nickName = s.nickName; userName = s.userName;
     fullName = s.fullName; password = s.password; servers = s.servers;
-    autoConnect = s.autoConnect; return *this; }
+    autoConnect = s.autoConnect; connectTimeout = s.connectTimeout;
+    pongTimeout = s.pongTimeout; return *this; }
 
   std::string name;
   std::string displayName;
@@ -39,6 +42,8 @@ struct NetworkConfig {
   std::string password;
   std::vector<ServerConfig*> servers;
   bool autoConnect;
+  time_t connectTimeout;
+  time_t pongTimeout;
 };
 
 class NetworkListener
@@ -69,6 +74,7 @@ class Network
       ConfigurationReloadReason,
       SwitchingServersReason,
       ErrorReason,
+      TimeoutReason,
       AdminRequestReason
     };
 
@@ -96,6 +102,7 @@ class Network
 
     void connectToNetwork( bool reconnect = false );
     void disconnectFromNetwork( DisconnectReason reason = UnknownReason );
+    void checkTimeouts();
     void joinChannel( std::string channel );
     void leaveChannel( std::string channel );
     void say( std::string destination, std::string message );
@@ -124,6 +131,8 @@ class Network
     std::map<std::string,std::string> topics_;
     std::vector<NetworkListener*>   networkListeners_;
     std::string           nick_;
+    time_t deadline_;
+    time_t nextPongDeadline_;
 
     void onFailedConnection();
     void joinedChannel(const std::string &user, const std::string &receiver);

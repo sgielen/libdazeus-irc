@@ -36,6 +36,8 @@ Network::Network( const NetworkConfig *c )
 , topics_()
 , networkListeners_()
 , nick_(c->nickName)
+, deadline_(0)
+, nextPongDeadline_(0)
 {}
 
 
@@ -201,6 +203,9 @@ void Network::connectToServer( ServerConfig *server, bool reconnect )
 
 	activeServer_ = new Server( server, this );
 	activeServer_->connectToServer();
+	if(config_->connectTimeout > 0) {
+		deadline_ = time(NULL) + config_->connectTimeout;
+	}
 }
 
 void Network::joinedChannel(const std::string &user, const std::string &receiver)
@@ -424,8 +429,14 @@ void Network::slotIrcEvent(const std::string &event, const std::string &origin, 
 	if(params.size() > 0)
 		receiver = params[0];
 
+	if(event != "ERROR") {
+		// a signal from the server means all is OK
+		deadline_ = 0;
+	}
+
 #define MIN(a) if(params.size() < a) { fprintf(stderr, "Too few parameters for event %s\n", event.c_str()); return; }
 	if(event == "CONNECT") {
+		nextPongDeadline_ = time(NULL) + 30;
 		serverIsActuallyOkay(activeServer_->config());
 	} else if(event == "JOIN") {
 		MIN(1);
@@ -462,11 +473,37 @@ void Network::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
 }
 
 void Network::processDescriptors(fd_set *in_set, fd_set *out_set) {
-	deleteServer_ = false;
-	activeServer_->processDescriptors(in_set, out_set);
 	if(deleteServer_) {
+		deleteServer_ = false;
 		delete activeServer_;
 		activeServer_ = 0;
 		connectToNetwork();
+		return;
 	}
+	activeServer_->processDescriptors(in_set, out_set);
+}
+
+void Network::checkTimeouts() {
+	if(deadline_ > time(NULL)) {
+		return; // deadline is set, not passed
+	}
+	if(deadline_ == 0) {
+		if(nextPongDeadline_ > time(NULL)) {
+			nextPongDeadline_ = time(NULL) + 30;
+			deadline_ = time(NULL) + config_->pongTimeout;
+			activeServer_->ping();
+		}
+		return;
+	}
+
+	// Connection didn't finish in time, disconnect and try again
+	flagUndesirableServer(activeServer()->config());
+	activeServer_->disconnectFromServer(Network::TimeoutReason);
+	onFailedConnection();
+	// no need to delete the server later, though: we can do it from here
+	// TODO: use smart ptrs so this mess gets elegant by refcounting
+	deleteServer_ = false;
+	delete activeServer_;
+	activeServer_ = 0;
+	connectToNetwork(true);
 }

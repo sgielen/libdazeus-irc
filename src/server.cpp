@@ -68,6 +68,9 @@ void Server::disconnectFromServer( Network::DisconnectReason reason )
 	case Network::SwitchingServersReason:
 		reasonString = "Switching servers";
 		break;
+	case Network::TimeoutReason:
+		reasonString = "Timeout";
+		break;
 	case Network::ErrorReason:
 		reasonString = "Unknown error";
 		break;
