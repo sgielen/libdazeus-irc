@@ -15,8 +15,15 @@ find_package(LibIRCClient REQUIRED)
 include_directories(${LibIRCClient_INCLUDE_DIRS})
 
 add_subdirectory(src)
+add_subdirectory(tests)
 
 # pkg-config file
 configure_file(libdazeus-irc.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libdazeus-irc.pc)
 install (FILES ${CMAKE_CURRENT_BINARY_DIR}/libdazeus-irc.pc
          DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+
+enable_testing()
+add_test(compile tests/compile)
+add_test(connect ${CMAKE_SOURCE_DIR}/tests/connect.pl tests/connect)
+add_test(reconnect ${CMAKE_SOURCE_DIR}/tests/reconnect.pl tests/reconnect)
+add_test(connectevents ${CMAKE_SOURCE_DIR}/tests/connectevents.pl tests/connectevents)

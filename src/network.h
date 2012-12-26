@@ -18,8 +18,8 @@ struct ServerConfig;
 
 struct NetworkConfig {
   NetworkConfig(std::string n = std::string(), std::string d = std::string(),
-    std::string nick = std::string(), std::string user = std::string(),
-    std::string full = std::string(), std::string p = std::string(), bool a =
+    std::string nick = std::string("DaZeus"), std::string user = std::string("dazeus"),
+    std::string full = std::string("DaZeus"), std::string p = std::string(), bool a =
     false, time_t ct = 10, time_t pt = 30) : name(n), displayName(d), nickName(nick), userName(user),
     fullName(full), password(p), servers(), autoConnect(a), connectTimeout(ct),
     pongTimeout(pt) {}
@@ -114,6 +114,8 @@ class Network
     void serverIsActuallyOkay( const ServerConfig *sc );
     void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
     void processDescriptors(fd_set *in_set, fd_set *out_set);
+    void run();
+    static void run(std::vector<Network*> networks);
 
   private:
     // explicitly disable copy constructor

@@ -7,6 +7,7 @@
 #include "server.h"
 #include "utils.h"
 #include <stdio.h>
+#include <sys/select.h>
 
 std::string Network::toString(const Network *n)
 {
@@ -210,23 +211,23 @@ void Network::connectToServer( ServerConfig *server, bool reconnect )
 
 void Network::joinedChannel(const std::string &user, const std::string &receiver)
 {
-	if(user == nick_ && !contains(knownUsers_, strToLower(receiver))) {
-		knownUsers_[strToLower(receiver)] = std::vector<std::string>();
+	if(user == nick_ && !contains_ci(knownUsers_, receiver)) {
+		knownUsers_[receiver] = std::vector<std::string>();
 	}
-	std::vector<std::string> users = knownUsers_[strToLower(receiver)];
-	if(!contains(users, strToLower(user)))
-		knownUsers_[strToLower(receiver)].push_back(strToLower(user));
+	std::vector<std::string> users = find_ci(knownUsers_, receiver)->second;
+	if(!contains_ci(users, user))
+		find_ci(knownUsers_, receiver)->second.push_back(user);
 }
 
 void Network::partedChannel(const std::string &user, const std::string &, const std::string &receiver)
 {
 	if(user == nick_) {
-		knownUsers_.erase(strToLower(receiver));
+		erase_ci(knownUsers_, receiver);
 	} else {
-		erase(knownUsers_[strToLower(receiver)], strToLower(user));
+		erase_ci(find_ci(knownUsers_, receiver)->second, user);
 	}
 	if(!isKnownUser(user)) {
-		erase(identifiedUsers_, strToLower(user));
+		erase_ci(identifiedUsers_, user);
 	}
 }
 
@@ -234,26 +235,26 @@ void Network::slotQuit(const std::string &origin, const std::string&, const std:
 {
 	std::map<std::string,std::vector<std::string> >::iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
-		erase(it->second, strToLower(origin));
+		erase_ci(it->second, origin);
 	}
 	if(!isKnownUser(origin)) {
-		erase(identifiedUsers_, strToLower(origin));
+		erase_ci(identifiedUsers_, origin);
 	}
 }
 
 void Network::slotNickChanged( const std::string &origin, const std::string &nick, const std::string & )
 {
-	erase(identifiedUsers_, strToLower(origin));
-	erase(identifiedUsers_, strToLower(nick));
+	erase_ci(identifiedUsers_, origin);
+	erase_ci(identifiedUsers_, nick);
 
 	if(nick_ == origin)
 		nick_ = nick;
 
 	std::map<std::string,std::vector<std::string> >::iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
-		if(contains(it->second, strToLower(origin))) {
-			erase(it->second, strToLower(origin));
-			it->second.push_back(strToLower(nick));
+		if(contains_ci(it->second, origin)) {
+			erase_ci(it->second, origin);
+			it->second.push_back(nick);
 		}
 	}
 }
@@ -261,12 +262,12 @@ void Network::slotNickChanged( const std::string &origin, const std::string &nic
 void Network::kickedChannel(const std::string&, const std::string &user, const std::string&, const std::string &receiver)
 {
 	if(user == nick_) {
-		knownUsers_.erase(strToLower(receiver));
+		erase_ci(knownUsers_, receiver);
 	} else {
-		erase(knownUsers_[strToLower(receiver)], strToLower(user));
+		erase_ci(find_ci(knownUsers_, receiver)->second, user);
 	}
 	if(!isKnownUser(user)) {
-		erase(identifiedUsers_, strToLower(user));
+		erase_ci(identifiedUsers_, user);
 	}
 }
 
@@ -380,13 +381,13 @@ void Network::serverIsActuallyOkay( const ServerConfig *sc )
 }
 
 bool Network::isIdentified(const std::string &user) const {
-	return contains(identifiedUsers_, strToLower(user));
+	return contains_ci(identifiedUsers_, user);
 }
 
 bool Network::isKnownUser(const std::string &user) const {
 	std::map<std::string,std::vector<std::string> >::const_iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
-		if(contains(it->second, strToLower(user))) {
+		if(contains_ci(it->second, user)) {
 			return true;
 		}
 	}
@@ -395,15 +396,15 @@ bool Network::isKnownUser(const std::string &user) const {
 
 void Network::slotWhoisReceived(const std::string &, const std::string &nick, bool identified) {
 	if(!identified) {
-		erase(identifiedUsers_, strToLower(nick));
-	} else if(identified && !contains(identifiedUsers_, strToLower(nick)) && isKnownUser(nick)) {
-		identifiedUsers_.push_back(strToLower(nick));
+		erase_ci(identifiedUsers_, nick);
+	} else if(identified && !contains_ci(identifiedUsers_, nick) && isKnownUser(nick)) {
+		identifiedUsers_.push_back(nick);
 	}
 }
 
 void Network::slotNamesReceived(const std::string&, const std::string &channel, const std::vector<std::string> &names, const std::string & ) {
-	assert(contains(knownUsers_, strToLower(channel)));
-	std::vector<std::string> &users = knownUsers_[strToLower(channel)];
+	assert(contains_ci(knownUsers_, channel));
+	std::vector<std::string> &users = find_ci(knownUsers_, channel)->second;
 	std::vector<std::string>::const_iterator it;
 	for(it = names.begin(); it != names.end(); ++it) {
 		std::string n = *it;
@@ -415,8 +416,8 @@ void Network::slotNamesReceived(const std::string&, const std::string &channel, 
 			}
 		}
 		n = n.substr(nickStart);
-		if(!contains(users, strToLower(n)))
-			users.push_back(strToLower(n));
+		if(!contains_ci(users, n))
+			users.push_back(n);
 	}
 }
 
@@ -506,4 +507,53 @@ void Network::checkTimeouts() {
 	delete activeServer_;
 	activeServer_ = 0;
 	connectToNetwork(true);
+}
+
+void Network::run() {
+	std::vector<Network*> nets;
+	nets << this;
+	Network::run(nets);
+}
+
+void Network::run(std::vector<Network*> networks) {
+	fd_set sockets, out_sockets;
+	int highest;
+	std::vector<Network*>::const_iterator nit;
+	struct timeval timeout;
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+	while(1) {
+		highest = 0;
+		FD_ZERO(&sockets);
+		FD_ZERO(&out_sockets);
+		for(nit = networks.begin(); nit != networks.end(); ++nit) {
+			if((*nit)->activeServer()) {
+				int ircmaxfd = 0;
+				(*nit)->addDescriptors(&sockets, &out_sockets, &ircmaxfd);
+				if(ircmaxfd > highest)
+					highest = ircmaxfd;
+			}
+		}
+
+		// If all networks are disconnected, nothing will happen
+		// anymore; even the listeners won't be triggered anymore.
+		// In such a case, break the event loop
+		if(highest == 0) {
+			return;
+		}
+
+		int socks = select(highest + 1, &sockets, &out_sockets, NULL, &timeout);
+		if(socks < 0) {
+			perror("select() failed");
+			return;
+		}
+		else if(socks == 0) {
+			continue;
+		}
+		for(nit = networks.begin(); nit != networks.end(); ++nit) {
+			if((*nit)->activeServer()) {
+				(*nit)->processDescriptors(&sockets, &out_sockets);
+			}
+		}
+	}
 }
