@@ -3,8 +3,8 @@
  * See LICENSE for license.
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef LIBDAZEUS_UTILS_H
+#define LIBDAZEUS_UTILS_H
 
 #include <string>
 #include <vector>
