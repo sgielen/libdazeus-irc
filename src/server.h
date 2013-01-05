@@ -66,6 +66,8 @@ private:
 	Server(const Server&);
 	void operator=(const Server&);
 
+	void ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message);
+
 	const ServerConfig *config_;
 	std::string   motd_;
 	Network  *network_;

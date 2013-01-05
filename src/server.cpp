@@ -101,7 +101,22 @@ void Server::whois( const std::string &destination ) {
 	irc_cmd_whois(IRC, destination.c_str());
 }
 
+/**
+ * Echo an event back to the caller, with a specific echoing name. Used for IRC
+ * commands that generate no replies from the server, such as PRIVMSG and an
+ * ACTION message inside a CTCP message.
+ */
+void Server::ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message) {
+	std::vector<std::string> parameters;
+	parameters.push_back(network_->networkName());
+	parameters.push_back(network_->nick());
+	parameters.push_back(destination);
+	parameters.push_back(message);
+	slotIrcEvent(eventname, "", parameters);
+}
+
 void Server::ctcpAction( const std::string &destination, const std::string &message ) {
+	ircEventMe("ACTION_ME", destination, message);
 	irc_cmd_me(IRC, destination.c_str(), message.c_str());
 }
 
@@ -110,6 +125,7 @@ void Server::names( const std::string &channel ) {
 }
 
 void Server::ctcpRequest( const std::string &destination, const std::string &message ) {
+	ircEventMe("CTCP_ME", destination, message);
 	irc_cmd_ctcp_request(IRC, destination.c_str(), message.c_str());
 }
 
@@ -126,6 +142,7 @@ void Server::message( const std::string &destination, const std::string &message
 	std::stringstream ss(message);
 	std::string line;
 	while(std::getline(ss, line)) {
+		ircEventMe("PRIVMSG_ME", destination, message);
 		irc_cmd_msg(IRC, destination.c_str(), line.c_str());
 	}
 }
@@ -163,7 +180,7 @@ void Server::slotNumericMessageReceived( const std::string &origin, unsigned int
 		std::vector<std::string> parameters;
 		parameters.push_back(in_whois_for_);
 		parameters.push_back(whois_identified_ ? "true" : "false");
-		network_->slotIrcEvent( "WHOIS", origin, parameters );
+		slotIrcEvent( "WHOIS", origin, parameters );
 		whois_identified_ = false;
 		in_whois_for_.clear();
 	}
@@ -186,7 +203,7 @@ void Server::slotNumericMessageReceived( const std::string &origin, unsigned int
 		for(it = in_names_.begin(); it != in_names_.end(); ++it) {
 			parameters.push_back(*it);
 		}
-		network_->slotIrcEvent( "NAMES", origin, parameters );
+		slotIrcEvent( "NAMES", origin, parameters );
 		in_names_.clear();
 	}
 	else if(code == 332)
@@ -194,7 +211,7 @@ void Server::slotNumericMessageReceived( const std::string &origin, unsigned int
 		std::vector<std::string> parameters;
 		parameters.push_back(args.at(1));
 		parameters.push_back(args.at(2));
-		network_->slotIrcEvent( "TOPIC", origin, parameters );
+		slotIrcEvent( "TOPIC", origin, parameters );
 	}
 	std::stringstream codestream;
 	codestream << code;
@@ -204,7 +221,7 @@ void Server::slotNumericMessageReceived( const std::string &origin, unsigned int
 	for(it = args.begin(); it != args.end(); ++it) {
 		params.push_back(*it);
 	}
-	network_->slotIrcEvent( "NUMERIC", origin, params );
+	slotIrcEvent( "NUMERIC", origin, params );
 }
 
 void Server::slotDisconnected()
