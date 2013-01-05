@@ -108,8 +108,6 @@ void Server::whois( const std::string &destination ) {
  */
 void Server::ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message) {
 	std::vector<std::string> parameters;
-	parameters.push_back(network_->networkName());
-	parameters.push_back(network_->nick());
 	parameters.push_back(destination);
 	parameters.push_back(message);
 	slotIrcEvent(eventname, "", parameters);
