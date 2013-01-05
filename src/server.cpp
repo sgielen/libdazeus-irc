@@ -110,7 +110,7 @@ void Server::ircEventMe( const std::string &eventname, const std::string &destin
 	std::vector<std::string> parameters;
 	parameters.push_back(destination);
 	parameters.push_back(message);
-	slotIrcEvent(eventname, "", parameters);
+	slotIrcEvent(eventname, network_->nick(), parameters);
 }
 
 void Server::ctcpAction( const std::string &destination, const std::string &message ) {
