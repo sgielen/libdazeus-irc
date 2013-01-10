@@ -37,13 +37,13 @@ std::string trim(const std::string &s) {
 	std::string str;
 	bool alpha = true;
 	for(unsigned i = 0; i < s.length(); ++i) {
-		if(alpha && isalpha(s[i]))
+		if(alpha && isspace(s[i]))
 			continue;
 		alpha = false;
 		str += s[i];
 	}
 	for(int i = str.length() - 1; i >= 0; --i) {
-		if(isalpha(str[i]))
+		if(isspace(str[i]))
 			str.resize(i);
 		else break;
 	}
