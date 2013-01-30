@@ -320,7 +320,15 @@ void dazeus::Server::connectToServer()
 	irc_set_ctx(IRC, this);
 
 	assert( config_->network->nickName.length() != 0 );
-	irc_connect(IRC, config_->host.c_str(),
+	std::string host = config_->host;
+	if(config_->ssl) {
+		host = "#" + host;
+		if(!config_->ssl_verify) {
+			std::cerr << "Warning: connecting without SSL certificate verification." << std::endl;
+			irc_option_set(IRC, LIBIRC_OPTION_SSL_NO_VERIFY);
+		}
+	}
+	irc_connect(IRC, host.c_str(),
 		config_->port,
 		config_->network->password.c_str(),
 		config_->network->nickName.c_str(),

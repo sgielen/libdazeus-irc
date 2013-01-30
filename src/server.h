@@ -22,17 +22,18 @@ struct NetworkConfig;
 
 struct ServerConfig {
   ServerConfig(std::string h = std::string(), NetworkConfig *n = 0, uint16_t p = 6667,
-    bool s = false, uint8_t pr = 5) : host(h), port(p), priority(pr),
-    network(n), ssl(s) {}
+    bool s = false, bool sv = true, uint8_t pr = 5) : host(h), port(p), priority(pr),
+    network(n), ssl(s), ssl_verify(sv) {}
   ServerConfig(const ServerConfig &s) : host(s.host), port(s.port),
-    priority(s.priority), network(s.network), ssl(s.ssl) {}
+    priority(s.priority), network(s.network), ssl(s.ssl), ssl_verify(s.ssl_verify) {}
   const ServerConfig &operator=(const ServerConfig &s) { host = s.host; port = s.port;
-    priority = s.priority; network = s.network; ssl = s.ssl; return *this; }
+    priority = s.priority; network = s.network; ssl = s.ssl; ssl_verify = s.ssl_verify; return *this; }
   std::string host;
   uint16_t port;
   uint8_t priority;
   NetworkConfig *network;
   bool ssl;
+  bool ssl_verify;
 };
 
 class Server
