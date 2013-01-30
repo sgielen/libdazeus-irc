@@ -489,7 +489,8 @@ void Network::checkTimeouts() {
 		return; // deadline is set, not passed
 	}
 	if(deadline_ == 0) {
-		if(nextPongDeadline_ > time(NULL)) {
+		if(time(NULL) > nextPongDeadline_) {
+			// We've passed the nextPongDeadline, send the next PING
 			nextPongDeadline_ = time(NULL) + 30;
 			deadline_ = time(NULL) + config_->pongTimeout;
 			activeServer_->ping();
