@@ -322,11 +322,17 @@ void dazeus::Server::connectToServer()
 	assert( config_->network->nickName.length() != 0 );
 	std::string host = config_->host;
 	if(config_->ssl) {
+#if defined(LIBIRC_OPTION_SSL_NO_VERIFY)
 		host = "#" + host;
 		if(!config_->ssl_verify) {
 			std::cerr << "Warning: connecting without SSL certificate verification." << std::endl;
 			irc_option_set(IRC, LIBIRC_OPTION_SSL_NO_VERIFY);
 		}
+#else
+		std::cerr << "Error: Your version of libircclient does not support SSL. Failing connection." << std::endl;
+		slotDisconnected();
+		return;
+#endif
 	}
 	irc_connect(IRC, host.c_str(),
 		config_->port,
