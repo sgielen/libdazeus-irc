@@ -11,6 +11,8 @@
 #include <string>
 #include <map>
 
+namespace dazeus {
+
 class Network;
 class Server;
 
@@ -147,5 +149,7 @@ class Network
     void slotTopicChanged(const std::string&, const std::string&, const std::string&);
     void slotIrcEvent(const std::string&, const std::string&, const std::vector<std::string>&);
 };
+
+}
 
 #endif

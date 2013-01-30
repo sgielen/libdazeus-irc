@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <sys/select.h>
 
-std::string Network::toString(const Network *n)
+std::string dazeus::Network::toString(const Network *n)
 {
 	std::stringstream res;
 	res << "Network[";
@@ -27,7 +27,7 @@ std::string Network::toString(const Network *n)
 /**
  * @brief Constructor.
  */
-Network::Network( const NetworkConfig *c )
+dazeus::Network::Network( const NetworkConfig *c )
 : activeServer_(0)
 , config_(c)
 , undesirables_()
@@ -45,7 +45,7 @@ Network::Network( const NetworkConfig *c )
 /**
  * @brief Destructor.
  */
-Network::~Network()
+dazeus::Network::~Network()
 {
 	disconnectFromNetwork();
 }
@@ -54,7 +54,7 @@ Network::~Network()
 /**
  * Returns the active server in this network, or 0 if there is none.
  */
-Server *Network::activeServer() const
+dazeus::Server *dazeus::Network::activeServer() const
 {
 	return activeServer_;
 }
@@ -63,26 +63,26 @@ Server *Network::activeServer() const
 /**
  * @brief Whether this network is marked for autoconnection.
  */
-bool Network::autoConnectEnabled() const
+bool dazeus::Network::autoConnectEnabled() const
 {
 	return config_->autoConnect;
 }
 
-void Network::action( std::string destination, std::string message )
+void dazeus::Network::action( std::string destination, std::string message )
 {
 	if( !activeServer_ )
 		return;
 	activeServer_->ctcpAction( destination, message );
 }
 
-void Network::names( std::string channel )
+void dazeus::Network::names( std::string channel )
 {
 	if( !activeServer_ )
 		return;
 	activeServer_->names( channel );
 }
 
-std::vector<std::string> Network::joinedChannels() const
+std::vector<std::string> dazeus::Network::joinedChannels() const
 {
 	std::vector<std::string> res;
 	std::map<std::string,std::vector<std::string> >::const_iterator it;
@@ -92,12 +92,12 @@ std::vector<std::string> Network::joinedChannels() const
 	return res;
 }
 
-std::map<std::string,std::string> Network::topics() const
+std::map<std::string,std::string> dazeus::Network::topics() const
 {
 	return topics_;
 }
 
-std::map<std::string,Network::ChannelMode> Network::usersInChannel(std::string channel) const
+std::map<std::string,dazeus::Network::ChannelMode> dazeus::Network::usersInChannel(std::string channel) const
 {
 	std::map<std::string, ChannelMode> res;
 	std::map<std::string, std::vector<std::string> >::const_iterator it;
@@ -108,7 +108,7 @@ std::map<std::string,Network::ChannelMode> Network::usersInChannel(std::string c
 		std::vector<std::string>::const_iterator it2;
 		for(it2 = users.begin(); it2 != users.end(); ++it2) {
 			// TODO: remember the mode
-			res[*it2] = Network::UserMode;
+			res[*it2] = dazeus::Network::UserMode;
 		}
 	}
 	return res;
@@ -121,6 +121,7 @@ std::map<std::string,Network::ChannelMode> Network::usersInChannel(std::string c
  * links to via the NetworkConfig, if there is such a NetworkConfig object.
  * You must give two servers of the same Network.
  */
+namespace dazeus {
 struct ServerSorter {
 	private:
 	Network *n_;
@@ -153,18 +154,19 @@ struct ServerSorter {
 		return randomValues[c1] < randomValues[c2];
 	}
 };
+}
 
-const NetworkConfig *Network::config() const
+const dazeus::NetworkConfig *dazeus::Network::config() const
 {
 	return config_;
 }
 
-void Network::connectToNetwork( bool reconnect )
+void dazeus::Network::connectToNetwork( bool reconnect )
 {
 	if( !reconnect && activeServer_ )
 		return;
 
-	printf("Connecting to network: %s\n", Network::toString(this).c_str());
+	printf("Connecting to network: %s\n", dazeus::Network::toString(this).c_str());
 
 	// Check if there *is* a server to use
 	if( servers().size() == 0 )
@@ -188,7 +190,7 @@ void Network::connectToNetwork( bool reconnect )
 }
 
 
-void Network::connectToServer( ServerConfig *server, bool reconnect )
+void dazeus::Network::connectToServer( ServerConfig *server, bool reconnect )
 {
 	if( !reconnect && activeServer_ )
 		return;
@@ -209,7 +211,7 @@ void Network::connectToServer( ServerConfig *server, bool reconnect )
 	}
 }
 
-void Network::joinedChannel(const std::string &user, const std::string &receiver)
+void dazeus::Network::joinedChannel(const std::string &user, const std::string &receiver)
 {
 	if(user == nick_ && !contains_ci(knownUsers_, receiver)) {
 		knownUsers_[receiver] = std::vector<std::string>();
@@ -219,7 +221,7 @@ void Network::joinedChannel(const std::string &user, const std::string &receiver
 		find_ci(knownUsers_, receiver)->second.push_back(user);
 }
 
-void Network::partedChannel(const std::string &user, const std::string &, const std::string &receiver)
+void dazeus::Network::partedChannel(const std::string &user, const std::string &, const std::string &receiver)
 {
 	if(user == nick_) {
 		erase_ci(knownUsers_, receiver);
@@ -231,7 +233,7 @@ void Network::partedChannel(const std::string &user, const std::string &, const 
 	}
 }
 
-void Network::slotQuit(const std::string &origin, const std::string&, const std::string &)
+void dazeus::Network::slotQuit(const std::string &origin, const std::string&, const std::string &)
 {
 	std::map<std::string,std::vector<std::string> >::iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
@@ -242,7 +244,7 @@ void Network::slotQuit(const std::string &origin, const std::string&, const std:
 	}
 }
 
-void Network::slotNickChanged( const std::string &origin, const std::string &nick, const std::string & )
+void dazeus::Network::slotNickChanged( const std::string &origin, const std::string &nick, const std::string & )
 {
 	erase_ci(identifiedUsers_, origin);
 	erase_ci(identifiedUsers_, nick);
@@ -259,7 +261,7 @@ void Network::slotNickChanged( const std::string &origin, const std::string &nic
 	}
 }
 
-void Network::kickedChannel(const std::string&, const std::string &user, const std::string&, const std::string &receiver)
+void dazeus::Network::kickedChannel(const std::string&, const std::string &user, const std::string&, const std::string &receiver)
 {
 	if(user == nick_) {
 		erase_ci(knownUsers_, receiver);
@@ -271,9 +273,9 @@ void Network::kickedChannel(const std::string&, const std::string &user, const s
 	}
 }
 
-void Network::onFailedConnection()
+void dazeus::Network::onFailedConnection()
 {
-	fprintf(stderr, "Connection failed on %s\n", Network::toString(this).c_str());
+	fprintf(stderr, "Connection failed on %s\n", dazeus::Network::toString(this).c_str());
 
 	identifiedUsers_.clear();
 	knownUsers_.clear();
@@ -288,7 +290,7 @@ void Network::onFailedConnection()
 }
 
 
-void Network::ctcp( std::string destination, std::string message )
+void dazeus::Network::ctcp( std::string destination, std::string message )
 {
 	if( !activeServer_ )
 		return;
@@ -299,7 +301,7 @@ void Network::ctcp( std::string destination, std::string message )
 /**
  * @brief Disconnect from the network.
  */
-void Network::disconnectFromNetwork( DisconnectReason reason )
+void dazeus::Network::disconnectFromNetwork( DisconnectReason reason )
 {
 	if( activeServer_ == 0 )
 		return;
@@ -314,7 +316,7 @@ void Network::disconnectFromNetwork( DisconnectReason reason )
 }
 
 
-void Network::joinChannel( std::string channel )
+void dazeus::Network::joinChannel( std::string channel )
 {
 	if( !activeServer_ )
 		return;
@@ -322,7 +324,7 @@ void Network::joinChannel( std::string channel )
 }
 
 
-void Network::leaveChannel( std::string channel )
+void dazeus::Network::leaveChannel( std::string channel )
 {
 	if( !activeServer_ )
 		return;
@@ -330,7 +332,7 @@ void Network::leaveChannel( std::string channel )
 }
 
 
-void Network::say( std::string destination, std::string message )
+void dazeus::Network::say( std::string destination, std::string message )
 {
 	if( !activeServer_ )
 		return;
@@ -338,53 +340,53 @@ void Network::say( std::string destination, std::string message )
 }
 
 
-void Network::sendWhois( std::string destination )
+void dazeus::Network::sendWhois( std::string destination )
 {
 	activeServer_->whois(destination);
 }
 
-const std::vector<ServerConfig*> &Network::servers() const
+const std::vector<dazeus::ServerConfig*> &dazeus::Network::servers() const
 {
 	return config_->servers;
 }
 
 
-std::string Network::nick() const
+std::string dazeus::Network::nick() const
 {
 	return nick_;
 }
 
 
 
-std::string Network::networkName() const
+std::string dazeus::Network::networkName() const
 {
 	return config()->name;
 }
 
 
 
-int Network::serverUndesirability( const ServerConfig *sc ) const
+int dazeus::Network::serverUndesirability( const ServerConfig *sc ) const
 {
 	return contains(undesirables_, sc) ? undesirables_.find(sc)->second : 0;
 }
 
-void Network::flagUndesirableServer( const ServerConfig *sc )
+void dazeus::Network::flagUndesirableServer( const ServerConfig *sc )
 {
 	if(contains(undesirables_, sc))
 		undesirables_[sc] = undesirables_[sc] + 1;
 	else	undesirables_[sc] = 1;
 }
 
-void Network::serverIsActuallyOkay( const ServerConfig *sc )
+void dazeus::Network::serverIsActuallyOkay( const ServerConfig *sc )
 {
 	undesirables_.erase(sc);
 }
 
-bool Network::isIdentified(const std::string &user) const {
+bool dazeus::Network::isIdentified(const std::string &user) const {
 	return contains_ci(identifiedUsers_, user);
 }
 
-bool Network::isKnownUser(const std::string &user) const {
+bool dazeus::Network::isKnownUser(const std::string &user) const {
 	std::map<std::string,std::vector<std::string> >::const_iterator it;
 	for(it = knownUsers_.begin(); it != knownUsers_.end(); ++it) {
 		if(contains_ci(it->second, user)) {
@@ -394,7 +396,7 @@ bool Network::isKnownUser(const std::string &user) const {
 	return false;
 }
 
-void Network::slotWhoisReceived(const std::string &, const std::string &nick, bool identified) {
+void dazeus::Network::slotWhoisReceived(const std::string &, const std::string &nick, bool identified) {
 	if(!identified) {
 		erase_ci(identifiedUsers_, nick);
 	} else if(identified && !contains_ci(identifiedUsers_, nick) && isKnownUser(nick)) {
@@ -402,7 +404,7 @@ void Network::slotWhoisReceived(const std::string &, const std::string &nick, bo
 	}
 }
 
-void Network::slotNamesReceived(const std::string&, const std::string &channel, const std::vector<std::string> &names, const std::string & ) {
+void dazeus::Network::slotNamesReceived(const std::string&, const std::string &channel, const std::vector<std::string> &names, const std::string & ) {
 	assert(contains_ci(knownUsers_, channel));
 	std::vector<std::string> &users = find_ci(knownUsers_, channel)->second;
 	std::vector<std::string>::const_iterator it;
@@ -421,11 +423,11 @@ void Network::slotNamesReceived(const std::string&, const std::string &channel, 
 	}
 }
 
-void Network::slotTopicChanged(const std::string&, const std::string &channel, const std::string &topic) {
+void dazeus::Network::slotTopicChanged(const std::string&, const std::string &channel, const std::string &topic) {
 	topics_[channel] = topic;
 }
 
-void Network::slotIrcEvent(const std::string &event, const std::string &origin, const std::vector<std::string> &params) {
+void dazeus::Network::slotIrcEvent(const std::string &event, const std::string &origin, const std::vector<std::string> &params) {
 	std::string receiver;
 	if(params.size() > 0)
 		receiver = params[0];
@@ -469,11 +471,11 @@ void Network::slotIrcEvent(const std::string &event, const std::string &origin, 
 	}
 }
 
-void Network::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
+void dazeus::Network::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
 	activeServer_->addDescriptors(in_set, out_set, maxfd);
 }
 
-void Network::processDescriptors(fd_set *in_set, fd_set *out_set) {
+void dazeus::Network::processDescriptors(fd_set *in_set, fd_set *out_set) {
 	if(deleteServer_) {
 		deleteServer_ = false;
 		delete activeServer_;
@@ -484,7 +486,7 @@ void Network::processDescriptors(fd_set *in_set, fd_set *out_set) {
 	activeServer_->processDescriptors(in_set, out_set);
 }
 
-void Network::checkTimeouts() {
+void dazeus::Network::checkTimeouts() {
 	if(deadline_ > time(NULL)) {
 		return; // deadline is set, not passed
 	}
@@ -500,7 +502,7 @@ void Network::checkTimeouts() {
 
 	// Connection didn't finish in time, disconnect and try again
 	flagUndesirableServer(activeServer()->config());
-	activeServer_->disconnectFromServer(Network::TimeoutReason);
+	activeServer_->disconnectFromServer(dazeus::Network::TimeoutReason);
 	onFailedConnection();
 	// no need to delete the server later, though: we can do it from here
 	// TODO: use smart ptrs so this mess gets elegant by refcounting
@@ -510,13 +512,13 @@ void Network::checkTimeouts() {
 	connectToNetwork(true);
 }
 
-void Network::run() {
+void dazeus::Network::run() {
 	std::vector<Network*> nets;
 	nets << this;
-	Network::run(nets);
+	dazeus::Network::run(nets);
 }
 
-void Network::run(std::vector<Network*> networks) {
+void dazeus::Network::run(std::vector<Network*> networks) {
 	fd_set sockets, out_sockets;
 	int highest;
 	std::vector<Network*>::const_iterator nit;

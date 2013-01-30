@@ -13,14 +13,14 @@ int main(int argc, char *argv[]) {
 	uint16_t port = strtoul(argv[2], NULL, 10);
 
 	try {
-		NetworkConfig *config = new NetworkConfig("test", "test", "n1CKn4M3", "us3RN4m3", "fuLLn4m3", "p4sSW0rd");
+		dazeus::NetworkConfig *config = new dazeus::NetworkConfig("test", "test", "n1CKn4M3", "us3RN4m3", "fuLLn4m3", "p4sSW0rd");
 		if(!config) return 2;
 
-		ServerConfig *server = new ServerConfig(argv[1], config, port);
+		dazeus::ServerConfig *server = new dazeus::ServerConfig(argv[1], config, port);
 		if(!server) return 3;
 		config->servers.push_back(server);
 
-		Network *n = new Network(config);
+		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 4;
 
 		n->connectToNetwork(false);

@@ -19,7 +19,7 @@
 
 #define IRC (irc_session_t*)irc_
 
-std::string Server::toString(const Server *s)
+std::string dazeus::Server::toString(const Server *s)
 {
 	std::stringstream res;
 	res << "Server[";
@@ -34,7 +34,7 @@ std::string Server::toString(const Server *s)
 	return res.str();
 }
 
-Server::Server( const ServerConfig *c, Network *n )
+dazeus::Server::Server( const ServerConfig *c, Network *n )
 : config_(c)
 , motd_()
 , network_(n)
@@ -45,17 +45,17 @@ Server::Server( const ServerConfig *c, Network *n )
 {
 }
 
-Server::~Server()
+dazeus::Server::~Server()
 {
 	irc_destroy_session(IRC);
 }
 
-const ServerConfig *Server::config() const
+const dazeus::ServerConfig *dazeus::Server::config() const
 {
 	return config_;
 }
 
-void Server::disconnectFromServer( Network::DisconnectReason reason )
+void dazeus::Server::disconnectFromServer( Network::DisconnectReason reason )
 {
 	std::string reasonString;
 	switch( reason )
@@ -87,17 +87,17 @@ void Server::disconnectFromServer( Network::DisconnectReason reason )
 }
 
 
-std::string Server::motd() const
+std::string dazeus::Server::motd() const
 {
 	fprintf(stderr, "MOTD cannot be retrieved.\n");
 	return std::string();
 }
 
-void Server::quit( const std::string &reason ) {
+void dazeus::Server::quit( const std::string &reason ) {
 	irc_cmd_quit(IRC, reason.c_str());
 }
 
-void Server::whois( const std::string &destination ) {
+void dazeus::Server::whois( const std::string &destination ) {
 	irc_cmd_whois(IRC, destination.c_str());
 }
 
@@ -106,37 +106,37 @@ void Server::whois( const std::string &destination ) {
  * commands that generate no replies from the server, such as PRIVMSG and an
  * ACTION message inside a CTCP message.
  */
-void Server::ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message) {
+void dazeus::Server::ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message) {
 	std::vector<std::string> parameters;
 	parameters.push_back(destination);
 	parameters.push_back(message);
 	slotIrcEvent(eventname, network_->nick(), parameters);
 }
 
-void Server::ctcpAction( const std::string &destination, const std::string &message ) {
+void dazeus::Server::ctcpAction( const std::string &destination, const std::string &message ) {
 	ircEventMe("ACTION_ME", destination, message);
 	irc_cmd_me(IRC, destination.c_str(), message.c_str());
 }
 
-void Server::names( const std::string &channel ) {
+void dazeus::Server::names( const std::string &channel ) {
 	irc_cmd_names(IRC, channel.c_str());
 }
 
-void Server::ctcpRequest( const std::string &destination, const std::string &message ) {
+void dazeus::Server::ctcpRequest( const std::string &destination, const std::string &message ) {
 	ircEventMe("CTCP_ME", destination, message);
 	irc_cmd_ctcp_request(IRC, destination.c_str(), message.c_str());
 }
 
-void Server::join( const std::string &channel, const std::string &key ) {
+void dazeus::Server::join( const std::string &channel, const std::string &key ) {
 	irc_cmd_join(IRC, channel.c_str(), key.c_str());
 }
 
-void Server::part( const std::string &channel, const std::string &) {
+void dazeus::Server::part( const std::string &channel, const std::string &) {
 	// TODO: also use "reason" here (patch libircclient for this)
 	irc_cmd_part(IRC, channel.c_str());
 }
 
-void Server::message( const std::string &destination, const std::string &message ) {
+void dazeus::Server::message( const std::string &destination, const std::string &message ) {
 	std::stringstream ss(message);
 	std::string line;
 	while(std::getline(ss, line)) {
@@ -145,19 +145,19 @@ void Server::message( const std::string &destination, const std::string &message
 	}
 }
 
-void Server::ping() {
+void dazeus::Server::ping() {
 	irc_send_raw(IRC, "PING");
 }
 
-void Server::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
+void dazeus::Server::addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd) {
 	irc_add_select_descriptors(IRC, in_set, out_set, maxfd);
 }
 
-void Server::processDescriptors(fd_set *in_set, fd_set *out_set) {
+void dazeus::Server::processDescriptors(fd_set *in_set, fd_set *out_set) {
 	irc_process_select_descriptors(IRC, in_set, out_set);
 }
 
-void Server::slotNumericMessageReceived( const std::string &origin, unsigned int code,
+void dazeus::Server::slotNumericMessageReceived( const std::string &origin, unsigned int code,
 	const std::vector<std::string> &args )
 {
 	assert( network_ != 0 );
@@ -222,12 +222,12 @@ void Server::slotNumericMessageReceived( const std::string &origin, unsigned int
 	slotIrcEvent( "NUMERIC", origin, params );
 }
 
-void Server::slotDisconnected()
+void dazeus::Server::slotDisconnected()
 {
 	network_->onFailedConnection();
 }
 
-void Server::slotIrcEvent(const std::string &event, const std::string &origin, const std::vector<std::string> &args)
+void dazeus::Server::slotIrcEvent(const std::string &event, const std::string &origin, const std::vector<std::string> &args)
 {
 	assert(network_ != 0);
 	assert(network_->activeServer() == this);
@@ -235,7 +235,7 @@ void Server::slotIrcEvent(const std::string &event, const std::string &origin, c
 }
 
 void irc_eventcode_callback(irc_session_t *s, unsigned int event, const char *origin, const char **p, unsigned int count) {
-	Server *server = (Server*) irc_get_ctx(s);
+	dazeus::Server *server = (dazeus::Server*) irc_get_ctx(s);
 	std::vector<std::string> params;
 	for(unsigned int i = 0; i < count; ++i) {
 		params.push_back(std::string(p[i]));
@@ -244,7 +244,7 @@ void irc_eventcode_callback(irc_session_t *s, unsigned int event, const char *or
 }
 
 void irc_callback(irc_session_t *s, const char *e, const char *o, const char **params, unsigned int count) {
-	Server *server = (Server*) irc_get_ctx(s);
+	dazeus::Server *server = (dazeus::Server*) irc_get_ctx(s);
 
 	std::string event(e);
 	// From libircclient docs, but CHANNEL_* is bullshit...
@@ -269,7 +269,7 @@ void irc_callback(irc_session_t *s, const char *e, const char *o, const char **p
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "%s - %s from %s\n", Server::toString(server).c_str(), event.c_str(), origin.c_str());
+	fprintf(stderr, "%s - %s from %s\n", dazeus::Server::toString(server).c_str(), event.c_str(), origin.c_str());
 #endif
 
 	// TODO: handle disconnects nicely (probably using some ping and LIBIRC_ERR_CLOSED
@@ -277,13 +277,13 @@ void irc_callback(irc_session_t *s, const char *e, const char *o, const char **p
 		fprintf(stderr, "Error received from libircclient; origin=%s.\n", origin.c_str());
 		server->slotDisconnected();
 	} else if(event == "CONNECT") {
-		printf("Connected to server: %s\n", Server::toString(server).c_str());
+		printf("Connected to server: %s\n", dazeus::Server::toString(server).c_str());
 	}
 
 	server->slotIrcEvent(event, origin, arguments);
 }
 
-void Server::connectToServer()
+void dazeus::Server::connectToServer()
 {
 	printf("Connecting to server: %s\n", toString(this).c_str());
 	assert( !config_->network->nickName.length() == 0 );

@@ -3,9 +3,9 @@
 
 int main() {
 	try {
-		NetworkConfig *config = new NetworkConfig();
+		dazeus::NetworkConfig *config = new dazeus::NetworkConfig();
 		if(!config) return 2;
-		Network *n = new Network(config);
+		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 3;
 		delete n;
 		delete config;

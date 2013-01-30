@@ -16,6 +16,8 @@
 
 // #define SERVER_FULLDEBUG
 
+namespace dazeus {
+
 struct NetworkConfig;
 
 struct ServerConfig {
@@ -76,5 +78,7 @@ private:
 	bool whois_identified_;
 	std::vector<std::string> in_names_;
 };
+
+}
 
 #endif

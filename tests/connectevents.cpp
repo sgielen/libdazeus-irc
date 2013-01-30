@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-class TestListener : public NetworkListener {
+class TestListener : public dazeus::NetworkListener {
 public:
-	TestListener(Network *n)
+	TestListener(dazeus::Network *n)
 	: n_(n)
 	, welcome(false)
 	, motd(false)
@@ -23,7 +23,7 @@ public:
 	if(!(x)) { fprintf(stderr, "Test error: %s\n", y); exit(9); }
 
 	virtual void ircEvent(const std::string &event, const std::string &origin,
-	  const std::vector<std::string> &params, Network *n )
+	  const std::vector<std::string> &params, dazeus::Network *n )
 	{
 		mustbe(n_ == n, "Network ptr is incorrect");
 		mustbe(n->nick() == "Testbot", "Our nick is incorrect");
@@ -87,9 +87,9 @@ public:
 			mustbe(t.size() == 1, "Topic for one channel is not known");
 			mustbe(t.begin()->first == "##Ch4nN3l", "Topic for channel is not known");
 			mustbe(t.begin()->second == "A T0p1C:!", "Topic for channel is incorrect");
-			std::map<std::string,Network::ChannelMode> u = n->usersInChannel("##Ch4nN3l");
+			std::map<std::string,dazeus::Network::ChannelMode> u = n->usersInChannel("##Ch4nN3l");
 			mustbe(u.size() == 5, "wrong number of users known");
-			std::map<std::string,Network::ChannelMode>::iterator it;
+			std::map<std::string,dazeus::Network::ChannelMode>::iterator it;
 			bool op = false, voice = false, owner = false, normal = false, me = false;
 			for(it = u.begin(); it != u.end(); ++it) {
 				if(it->first == "Op3rAT0R") {
@@ -130,7 +130,7 @@ public:
 	}
 
 private:
-	Network *n_;
+	dazeus::Network *n_;
 	bool welcome, motd, motd2, motdend, connected, mode, noticesrv;
 	bool join, topic, privmsg;
 };
@@ -144,14 +144,14 @@ int main(int argc, char *argv[]) {
 	uint16_t port = strtoul(argv[2], NULL, 10);
 
 	try {
-		NetworkConfig *config = new NetworkConfig("test", "test", "Testbot");
+		dazeus::NetworkConfig *config = new dazeus::NetworkConfig("test", "test", "Testbot");
 		if(!config) return 2;
 
-		ServerConfig *server = new ServerConfig(argv[1], config, port);
+		dazeus::ServerConfig *server = new dazeus::ServerConfig(argv[1], config, port);
 		if(!server) return 3;
 		config->servers.push_back(server);
 
-		Network *n = new Network(config);
+		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 4;
 
 		TestListener *l = new TestListener(n);
