@@ -13,14 +13,13 @@ int main(int argc, char *argv[]) {
 	uint16_t port = strtoul(argv[2], NULL, 10);
 
 	try {
-		dazeus::NetworkConfig *config = new dazeus::NetworkConfig();
+		dazeus::NetworkConfigPtr config = std::make_shared<dazeus::NetworkConfig>();
 		config->name = "test";
 		config->displayName = "test";
 		config->nickName = "n1CKn4M3";
 		config->userName = "us3RN4m3";
 		config->fullName = "fuLLn4m3";
 		config->password = "p4sSW0rd";
-		if(!config) return 2;
 
 		dazeus::ServerConfigPtr server = std::make_shared<dazeus::ServerConfig>();
 		server->host = argv[1];
@@ -36,7 +35,6 @@ int main(int argc, char *argv[]) {
 		n->run();
 
 		delete n;
-		delete config;
 	} catch(std::runtime_error e) {
 		return 1;
 	}

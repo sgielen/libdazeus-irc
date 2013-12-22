@@ -16,7 +16,7 @@ std::string dazeus::Network::toString(const Network *n)
 	if(n  == 0) {
 		res << "0";
 	} else {
-		const NetworkConfig *nc = n->config();
+		const NetworkConfigPtr nc = n->config();
 		res << nc->displayName << ", " << Server::toString(n->activeServer());
 	}
 	res << "]";
@@ -27,7 +27,7 @@ std::string dazeus::Network::toString(const Network *n)
 /**
  * @brief Constructor.
  */
-dazeus::Network::Network( const NetworkConfig *c )
+dazeus::Network::Network( const NetworkConfigPtr c )
 : activeServer_(0)
 , config_(c)
 , undesirables_()
@@ -156,7 +156,7 @@ struct ServerSorter {
 };
 }
 
-const dazeus::NetworkConfig *dazeus::Network::config() const
+const dazeus::NetworkConfigPtr dazeus::Network::config() const
 {
 	return config_;
 }

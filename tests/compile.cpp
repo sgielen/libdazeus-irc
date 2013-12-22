@@ -3,12 +3,10 @@
 
 int main() {
 	try {
-		dazeus::NetworkConfig *config = new dazeus::NetworkConfig();
-		if(!config) return 2;
+		dazeus::NetworkConfigPtr config = std::make_shared<dazeus::NetworkConfig>();
 		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 3;
 		delete n;
-		delete config;
 	} catch(std::runtime_error e) {
 		return 1;
 	}

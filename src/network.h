@@ -35,6 +35,7 @@ struct NetworkConfig {
   time_t connectTimeout;
   time_t pongTimeout;
 };
+typedef std::shared_ptr<NetworkConfig> NetworkConfigPtr;
 
 class NetworkListener
 {
@@ -50,7 +51,7 @@ class Network
   friend class Server;
 
   public:
-                    Network( const NetworkConfig *c );
+                    Network( const NetworkConfigPtr c );
                    ~Network();
 
     static std::string toString(const Network *n);
@@ -81,7 +82,7 @@ class Network
     const std::vector<ServerConfigPtr> &servers() const;
     std::string                 nick() const;
     Server                     *activeServer() const;
-    const NetworkConfig        *config() const;
+    const NetworkConfigPtr      config() const;
     int                         serverUndesirability( const ServerConfigPtr sc ) const;
     std::string                 networkName() const;
     std::vector<std::string>    joinedChannels() const;
@@ -115,7 +116,7 @@ class Network
     void connectToServer( ServerConfigPtr conf, bool reconnect );
 
     Server               *activeServer_;
-    const NetworkConfig  *config_;
+    const NetworkConfigPtr config_;
     std::map<const ServerConfigPtr,int> undesirables_;
     bool                  deleteServer_;
     std::vector<std::string>        identifiedUsers_;

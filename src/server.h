@@ -20,6 +20,7 @@
 namespace dazeus {
 
 struct NetworkConfig;
+typedef std::shared_ptr<NetworkConfig> NetworkConfigPtr;
 
 struct ServerConfig {
   ServerConfig() : port(6667), priority(5), ssl(false), ssl_verify(true) {}
@@ -27,17 +28,14 @@ struct ServerConfig {
   std::string host;
   uint16_t port;
   uint8_t priority;
-  NetworkConfig *network;
+  NetworkConfigPtr network;
   bool ssl;
   bool ssl_verify;
 };
-
 typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
 
 class Server
 {
-
-
 public:
 	  Server(const ServerConfigPtr c, Network *n);
 	  ~Server();
