@@ -19,22 +19,8 @@ class Server;
 struct ServerConfig;
 
 struct NetworkConfig {
-  NetworkConfig(std::string n = std::string(), std::string d = std::string(),
-    std::string nick = std::string("DaZeus"), std::string user = std::string("dazeus"),
-    std::string full = std::string("DaZeus"), std::string p = std::string(), bool a =
-    false, time_t ct = 10, time_t pt = 30) : name(n), displayName(d), nickName(nick), userName(user),
-    fullName(full), password(p), servers(), autoConnect(a), connectTimeout(ct),
-    pongTimeout(pt) {}
-  NetworkConfig(const NetworkConfig &s) : name(s.name),
-    displayName(s.displayName), nickName(s.nickName), userName(s.userName),
-    fullName(s.fullName), password(s.password), servers(s.servers),
-    autoConnect(s.autoConnect), connectTimeout(s.connectTimeout),
-    pongTimeout(s.pongTimeout) {}
-  const NetworkConfig &operator=(const NetworkConfig &s) { name = s.name;
-    displayName = s.displayName; nickName = s.nickName; userName = s.userName;
-    fullName = s.fullName; password = s.password; servers = s.servers;
-    autoConnect = s.autoConnect; connectTimeout = s.connectTimeout;
-    pongTimeout = s.pongTimeout; return *this; }
+  NetworkConfig() : nickName("DaZeus"), userName("dazeus"),
+      fullName("DaZeus"), autoConnect(false), connectTimeout(10), pongTimeout(30) {}
 
   std::string name;
   std::string displayName;

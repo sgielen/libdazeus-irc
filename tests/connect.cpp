@@ -13,7 +13,13 @@ int main(int argc, char *argv[]) {
 	uint16_t port = strtoul(argv[2], NULL, 10);
 
 	try {
-		dazeus::NetworkConfig *config = new dazeus::NetworkConfig("test", "test", "n1CKn4M3", "us3RN4m3", "fuLLn4m3", "p4sSW0rd");
+		dazeus::NetworkConfig *config = new dazeus::NetworkConfig();
+		config->name = "test";
+		config->displayName = "test";
+		config->nickName = "n1CKn4M3";
+		config->userName = "us3RN4m3";
+		config->fullName = "fuLLn4m3";
+		config->password = "p4sSW0rd";
 		if(!config) return 2;
 
 		dazeus::ServerConfig *server = new dazeus::ServerConfig(argv[1], config, port);
