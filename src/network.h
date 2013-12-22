@@ -10,6 +10,7 @@
 #include <sys/select.h> /* fd_set */
 #include <string>
 #include <map>
+#include <memory>
 
 namespace dazeus {
 
@@ -17,6 +18,7 @@ class Network;
 class Server;
 
 struct ServerConfig;
+typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
 
 struct NetworkConfig {
   NetworkConfig() : nickName("DaZeus"), userName("dazeus"),
@@ -28,7 +30,7 @@ struct NetworkConfig {
   std::string userName;
   std::string fullName;
   std::string password;
-  std::vector<ServerConfig*> servers;
+  std::vector<ServerConfigPtr> servers;
   bool autoConnect;
   time_t connectTimeout;
   time_t pongTimeout;
@@ -76,11 +78,11 @@ class Network
     };
 
     bool                        autoConnectEnabled() const;
-    const std::vector<ServerConfig*> &servers() const;
+    const std::vector<ServerConfigPtr> &servers() const;
     std::string                 nick() const;
     Server                     *activeServer() const;
     const NetworkConfig        *config() const;
-    int                         serverUndesirability( const ServerConfig *sc ) const;
+    int                         serverUndesirability( const ServerConfigPtr sc ) const;
     std::string                 networkName() const;
     std::vector<std::string>    joinedChannels() const;
     std::map<std::string,std::string> topics() const;
@@ -98,8 +100,8 @@ class Network
     void names( std::string channel );
     void ctcp( std::string destination, std::string message );
     void sendWhois( std::string destination );
-    void flagUndesirableServer( const ServerConfig *sc );
-    void serverIsActuallyOkay( const ServerConfig *sc );
+    void flagUndesirableServer( const ServerConfigPtr sc );
+    void serverIsActuallyOkay( const ServerConfigPtr sc );
     void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
     void processDescriptors(fd_set *in_set, fd_set *out_set);
     void run();
@@ -110,11 +112,11 @@ class Network
     Network(const Network&);
     void operator=(const Network&);
 
-    void connectToServer( ServerConfig *conf, bool reconnect );
+    void connectToServer( ServerConfigPtr conf, bool reconnect );
 
     Server               *activeServer_;
     const NetworkConfig  *config_;
-    std::map<const ServerConfig*,int> undesirables_;
+    std::map<const ServerConfigPtr,int> undesirables_;
     bool                  deleteServer_;
     std::vector<std::string>        identifiedUsers_;
     std::map<std::string,std::vector<std::string> > knownUsers_;

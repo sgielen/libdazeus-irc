@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#include <memory>
 
 #include "network.h"
 
@@ -36,14 +37,16 @@ struct ServerConfig {
   bool ssl_verify;
 };
 
+typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
+
 class Server
 {
 
 
 public:
-	  Server(const ServerConfig *c, Network *n);
+	  Server(const ServerConfigPtr c, Network *n);
 	  ~Server();
-	const ServerConfig *config() const;
+	const ServerConfigPtr config() const;
 	std::string motd() const;
 	void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
 	void processDescriptors(fd_set *in_set, fd_set *out_set);
@@ -71,7 +74,7 @@ private:
 
 	void ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message);
 
-	const ServerConfig *config_;
+	const ServerConfigPtr config_;
 	std::string   motd_;
 	Network  *network_;
 	void *irc_;

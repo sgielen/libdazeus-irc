@@ -22,8 +22,7 @@ int main(int argc, char *argv[]) {
 		config->password = "p4sSW0rd";
 		if(!config) return 2;
 
-		dazeus::ServerConfig *server = new dazeus::ServerConfig(argv[1], config, port);
-		if(!server) return 3;
+		dazeus::ServerConfigPtr server = std::make_shared<dazeus::ServerConfig>(argv[1], config, port);
 		config->servers.push_back(server);
 
 		dazeus::Network *n = new dazeus::Network(config);
@@ -34,7 +33,6 @@ int main(int argc, char *argv[]) {
 		n->run();
 
 		delete n;
-		delete server;
 		delete config;
 	} catch(std::runtime_error e) {
 		return 1;

@@ -26,7 +26,7 @@ std::string dazeus::Server::toString(const Server *s)
 	if(s  == 0 ) {
 		res << "0";
 	} else {
-		const ServerConfig *sc = s->config();
+		const ServerConfigPtr sc = s->config();
 		res << sc->host << ":" << sc->port;
 	}
 	res << "]";
@@ -34,7 +34,7 @@ std::string dazeus::Server::toString(const Server *s)
 	return res.str();
 }
 
-dazeus::Server::Server( const ServerConfig *c, Network *n )
+dazeus::Server::Server( const ServerConfigPtr c, Network *n )
 : config_(c)
 , motd_()
 , network_(n)
@@ -50,7 +50,7 @@ dazeus::Server::~Server()
 	irc_destroy_session(IRC);
 }
 
-const dazeus::ServerConfig *dazeus::Server::config() const
+const dazeus::ServerConfigPtr dazeus::Server::config() const
 {
 	return config_;
 }

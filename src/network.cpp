@@ -125,11 +125,11 @@ namespace dazeus {
 struct ServerSorter {
 	private:
 	Network *n_;
-	std::map<const ServerConfig*, int> randomValues;
+	std::map<const ServerConfigPtr, int> randomValues;
 
 	public:
 	ServerSorter(Network *n) : n_(n) {}
-	bool operator()(const ServerConfig *c1, const ServerConfig *c2) {
+	bool operator()(const ServerConfigPtr c1, const ServerConfigPtr c2) {
 		assert(c1->network == c2->network);
 		assert(c1->network == n_->config());
 
@@ -179,18 +179,18 @@ void dazeus::Network::connectToNetwork( bool reconnect )
 	// Find the best server to use
 
 	// First, sort the list by priority and earlier failures
-	std::vector<ServerConfig*> sortedServers = servers();
+	std::vector<ServerConfigPtr> sortedServers = servers();
 	std::sort( sortedServers.begin(), sortedServers.end(), ServerSorter(this) );
 
 	// Then, take the first one and create a Server around it
-	ServerConfig *best = sortedServers[0];
+	ServerConfigPtr best = sortedServers[0];
 
 	// And set it as the active server, and connect.
 	connectToServer( best, true );
 }
 
 
-void dazeus::Network::connectToServer( ServerConfig *server, bool reconnect )
+void dazeus::Network::connectToServer( ServerConfigPtr server, bool reconnect )
 {
 	if( !reconnect && activeServer_ )
 		return;
@@ -345,7 +345,7 @@ void dazeus::Network::sendWhois( std::string destination )
 	activeServer_->whois(destination);
 }
 
-const std::vector<dazeus::ServerConfig*> &dazeus::Network::servers() const
+const std::vector<dazeus::ServerConfigPtr> &dazeus::Network::servers() const
 {
 	return config_->servers;
 }
@@ -365,19 +365,19 @@ std::string dazeus::Network::networkName() const
 
 
 
-int dazeus::Network::serverUndesirability( const ServerConfig *sc ) const
+int dazeus::Network::serverUndesirability( const ServerConfigPtr sc ) const
 {
 	return contains(undesirables_, sc) ? undesirables_.find(sc)->second : 0;
 }
 
-void dazeus::Network::flagUndesirableServer( const ServerConfig *sc )
+void dazeus::Network::flagUndesirableServer( const ServerConfigPtr sc )
 {
 	if(contains(undesirables_, sc))
 		undesirables_[sc] = undesirables_[sc] + 1;
 	else	undesirables_[sc] = 1;
 }
 
-void dazeus::Network::serverIsActuallyOkay( const ServerConfig *sc )
+void dazeus::Network::serverIsActuallyOkay( const ServerConfigPtr sc )
 {
 	undesirables_.erase(sc);
 }
