@@ -9,7 +9,7 @@ set_target_properties(dazeus-irc PROPERTIES VERSION ${LIBDAZEUS_IRC_VERSION})
 if(APPLE)
   set_target_properties(dazeus-irc PROPERTIES INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 endif(APPLE)
-add_definitions("-Wall -Wextra -Weffc++ -pedantic")
+add_definitions("-Wall -Wextra -pedantic")
 
 install (TARGETS dazeus-irc DESTINATION lib)
 install (FILES network.h server.h DESTINATION include)
