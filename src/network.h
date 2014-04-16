@@ -97,6 +97,7 @@ class Network
     void joinChannel( std::string channel );
     void leaveChannel( std::string channel );
     void say( std::string destination, std::string message );
+    void notice( std::string destination, std::string message );
     void action( std::string destination, std::string message );
     void names( std::string channel );
     void ctcp( std::string destination, std::string message );

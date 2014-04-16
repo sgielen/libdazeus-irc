@@ -54,6 +54,7 @@ public:
 	void join( const std::string &channel, const std::string &key = std::string() );
 	void part( const std::string &channel, const std::string &reason = std::string() );
 	void message( const std::string &destination, const std::string &message );
+	void notice( const std::string &destination, const std::string &message );
 	void names( const std::string &channel );
 	void ping();
 	void slotNumericMessageReceived( const std::string &origin, unsigned int code, const std::vector<std::string> &params);

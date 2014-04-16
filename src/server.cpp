@@ -145,6 +145,15 @@ void dazeus::Server::message( const std::string &destination, const std::string 
 	}
 }
 
+void dazeus::Server::notice( const std::string &destination, const std::string &message ) {
+	std::stringstream ss(message);
+	std::string line;
+	while(std::getline(ss, line)) {
+		ircEventMe("NOTICE_ME", destination, message);
+		irc_cmd_notice(IRC, destination.c_str(), line.c_str());
+	}
+}
+
 void dazeus::Server::ping() {
 	irc_send_raw(IRC, "PING");
 }

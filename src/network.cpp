@@ -340,6 +340,14 @@ void dazeus::Network::say( std::string destination, std::string message )
 }
 
 
+void dazeus::Network::notice( std::string destination, std::string message )
+{
+	if( !activeServer_ )
+		return;
+	activeServer_->notice( destination, message );
+}
+
+
 void dazeus::Network::sendWhois( std::string destination )
 {
 	activeServer_->whois(destination);
