@@ -127,6 +127,11 @@ void dazeus::Server::ctcpRequest( const std::string &destination, const std::str
 	irc_cmd_ctcp_request(IRC, destination.c_str(), message.c_str());
 }
 
+void dazeus::Server::ctcpReply( const std::string &destination, const std::string &message ) {
+	ircEventMe("CTCP_REP_ME", destination, message);
+	irc_cmd_ctcp_reply(IRC, destination.c_str(), message.c_str());
+}
+
 void dazeus::Server::join( const std::string &channel, const std::string &key ) {
 	irc_cmd_join(IRC, channel.c_str(), key.c_str());
 }

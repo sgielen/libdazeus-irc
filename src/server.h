@@ -51,6 +51,7 @@ public:
 	void whois( const std::string &destination );
 	void ctcpAction( const std::string &destination, const std::string &message );
 	void ctcpRequest( const std::string &destination, const std::string &message );
+	void ctcpReply( const std::string &destination, const std::string &message );
 	void join( const std::string &channel, const std::string &key = std::string() );
 	void part( const std::string &channel, const std::string &reason = std::string() );
 	void message( const std::string &destination, const std::string &message );

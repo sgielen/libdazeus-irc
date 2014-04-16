@@ -101,6 +101,7 @@ class Network
     void action( std::string destination, std::string message );
     void names( std::string channel );
     void ctcp( std::string destination, std::string message );
+    void ctcpReply( std::string destination, std::string message );
     void sendWhois( std::string destination );
     void flagUndesirableServer( const ServerConfigPtr sc );
     void serverIsActuallyOkay( const ServerConfigPtr sc );

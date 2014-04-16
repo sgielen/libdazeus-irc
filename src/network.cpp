@@ -298,6 +298,14 @@ void dazeus::Network::ctcp( std::string destination, std::string message )
 }
 
 
+void dazeus::Network::ctcpReply( std::string destination, std::string message )
+{
+	if( !activeServer_ )
+		return;
+	activeServer_->ctcpReply( destination, message );
+}
+
+
 /**
  * @brief Disconnect from the network.
  */
