@@ -294,7 +294,7 @@ void dazeus::Network::ctcp( std::string destination, std::string message )
 {
 	if( !activeServer_ )
 		return;
-	activeServer_->ctcpAction( destination, message );
+	activeServer_->ctcpRequest( destination, message );
 }
 
 
