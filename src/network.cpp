@@ -539,9 +539,9 @@ void dazeus::Network::run(std::vector<Network*> networks) {
 	int highest;
 	std::vector<Network*>::const_iterator nit;
 	struct timeval timeout;
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
 	while(1) {
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
 		highest = 0;
 		FD_ZERO(&sockets);
 		FD_ZERO(&out_sockets);
