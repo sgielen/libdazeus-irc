@@ -13,23 +13,23 @@ int main(int argc, char *argv[]) {
 	uint16_t port = strtoul(argv[2], NULL, 10);
 
 	try {
-		dazeus::NetworkConfigPtr config = std::make_shared<dazeus::NetworkConfig>();
-		config->name = "test";
-		config->displayName = "test";
-		config->nickName = "connectone";
+		dazeus::NetworkConfig config;
+		config.name = "test";
+		config.displayName = "test";
+		config.nickName = "connectone";
 
 		dazeus::ServerConfig server;
 		server.host = argv[1];
 		server.port = port;
-		config->servers.push_back(server);
+		config.servers.push_back(server);
 
-		dazeus::Network *n = new dazeus::Network(*config);
+		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 4;
 
 		n->connectToNetwork(false);
 		n->run();
-		config->nickName = "connecttwo";
-		n->resetConfig(*config);
+		config.nickName = "connecttwo";
+		n->resetConfig(config);
 		n->connectToNetwork(true);
 		n->run();
 

@@ -26,24 +26,6 @@ std::string dazeus::Network::toString(const Network *n)
 
 /**
  * @brief Constructor.
- * @deprecated NetworkConfigPtr is a deprecated type.
- */
-dazeus::Network::Network( const NetworkConfigPtr c )
-: activeServer_(0)
-, config_(*c)
-, undesirables_()
-, deleteServer_(false)
-, identifiedUsers_()
-, knownUsers_()
-, topics_()
-, networkListeners_()
-, nick_(c->nickName)
-, deadline_(0)
-, nextPongDeadline_(0)
-{}
-
-/**
- * @brief Constructor.
  */
 dazeus::Network::Network(const NetworkConfig &c)
 : activeServer_(0)

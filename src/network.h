@@ -32,9 +32,6 @@ class Network
   friend class Server;
 
   public:
-    __attribute__((deprecated))
-    Network( const NetworkConfigPtr c );
-
     Network(const NetworkConfig &c);
     ~Network();
 

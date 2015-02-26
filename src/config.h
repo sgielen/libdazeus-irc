@@ -39,8 +39,6 @@ struct NetworkConfig {
   time_t pongTimeout;
 };
 
-typedef std::shared_ptr<NetworkConfig> NetworkConfigPtr;
-
 }
 
 #endif
