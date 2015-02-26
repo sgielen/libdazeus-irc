@@ -88,7 +88,7 @@ class Network
     std::string                 nick() const;
     Server                     *activeServer() const;
     const NetworkConfig        &config() const;
-    int                         serverUndesirability( const ServerConfigPtr sc ) const;
+    int                         serverUndesirability( const ServerConfig &sc ) const;
     std::string                 networkName() const;
     std::vector<std::string>    joinedChannels() const;
     std::map<std::string,std::string> topics() const;
@@ -108,8 +108,6 @@ class Network
     void ctcp( std::string destination, std::string message );
     void ctcpReply( std::string destination, std::string message );
     void sendWhois( std::string destination );
-    void flagUndesirableServer( const ServerConfigPtr sc );
-    void serverIsActuallyOkay( const ServerConfigPtr sc );
     void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
     void processDescriptors(fd_set *in_set, fd_set *out_set);
     void run();
@@ -120,11 +118,13 @@ class Network
     Network(const Network&);
     void operator=(const Network&);
 
+    void flagUndesirableServer( const ServerConfig &sc );
+    void serverIsActuallyOkay( const ServerConfig &sc );
     void connectToServer( ServerConfigPtr conf, bool reconnect );
 
     Server               *activeServer_;
     const NetworkConfig config_;
-    std::map<const ServerConfigPtr,int> undesirables_;
+    std::map<std::string,int> undesirables_;
     bool                  deleteServer_;
     std::vector<std::string>        identifiedUsers_;
     std::map<std::string,std::vector<std::string> > knownUsers_;

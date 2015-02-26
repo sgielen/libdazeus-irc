@@ -150,8 +150,8 @@ struct ServerSorter {
 		assert(c1->network == c2->network);
 		assert(c1->network->displayName == n_->config().displayName);
 
-		int prio1 = c1->priority + n_->serverUndesirability(c1);
-		int prio2 = c2->priority + n_->serverUndesirability(c2);
+		int prio1 = c1->priority + n_->serverUndesirability(*c1);
+		int prio2 = c2->priority + n_->serverUndesirability(*c2);
 
 		if(prio1 != prio2) {
 			return prio1 < prio2;
@@ -302,7 +302,7 @@ void dazeus::Network::onFailedConnection()
 	// Flag old server as undesirable
 	// Don't destroy it here yet; it is still in the stack. It will be destroyed
 	// in processDescriptors().
-	flagUndesirableServer( activeServer_->config() );
+	flagUndesirableServer( *activeServer_->config() );
 	deleteServer_ = true;
 }
 
@@ -398,21 +398,26 @@ std::string dazeus::Network::networkName() const
 
 
 
-int dazeus::Network::serverUndesirability( const ServerConfigPtr sc ) const
+int dazeus::Network::serverUndesirability( const ServerConfig &sc ) const
 {
-	return contains(undesirables_, sc) ? undesirables_.find(sc)->second : 0;
+	auto it = undesirables_.find(sc.toString());
+	return it == undesirables_.end() ? 0 : it->second;
 }
 
-void dazeus::Network::flagUndesirableServer( const ServerConfigPtr sc )
+void dazeus::Network::flagUndesirableServer( const ServerConfig &sc )
 {
-	if(contains(undesirables_, sc))
-		undesirables_[sc] = undesirables_[sc] + 1;
-	else	undesirables_[sc] = 1;
+	std::string i = sc.toString();
+	auto it = undesirables_.find(sc.toString());
+	if(it == undesirables_.end()) {
+		undesirables_[i] = 1;
+	} else {
+		it->second += 1;
+	}
 }
 
-void dazeus::Network::serverIsActuallyOkay( const ServerConfigPtr sc )
+void dazeus::Network::serverIsActuallyOkay( const ServerConfig &sc )
 {
-	undesirables_.erase(sc);
+	undesirables_.erase(sc.toString());
 }
 
 bool dazeus::Network::isIdentified(const std::string &user) const {
@@ -473,7 +478,7 @@ void dazeus::Network::slotIrcEvent(const std::string &event, const std::string &
 #define MIN(a) if(params.size() < a) { fprintf(stderr, "Too few parameters for event %s\n", event.c_str()); return; }
 	if(event == "CONNECT") {
 		nextPongDeadline_ = time(NULL) + 30;
-		serverIsActuallyOkay(activeServer_->config());
+		serverIsActuallyOkay(*activeServer_->config());
 	} else if(event == "JOIN") {
 		MIN(1);
 		joinedChannel(origin, receiver);
@@ -534,7 +539,7 @@ void dazeus::Network::checkTimeouts() {
 	}
 
 	// Connection didn't finish in time, disconnect and try again
-	flagUndesirableServer(activeServer()->config());
+	flagUndesirableServer(*activeServer()->config());
 	activeServer_->disconnectFromServer(dazeus::Network::TimeoutReason);
 	onFailedConnection();
 	// no need to delete the server later, though: we can do it from here

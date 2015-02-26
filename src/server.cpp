@@ -34,6 +34,16 @@ std::string dazeus::Server::toString(const Server *s)
 	return res.str();
 }
 
+std::string dazeus::ServerConfig::toString() const {
+	std::stringstream ss;
+	ss << "irc";
+	if(ssl) {
+		ss << "s";
+	}
+	ss << "://" << host << ":" << port;
+	return "ServerConfig[" + ss.str() + "]";
+}
+
 dazeus::Server::Server( const ServerConfigPtr c, Network *n )
 : config_(c)
 , motd_()
