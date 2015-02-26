@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
 		server->port = port;
 		config->servers.push_back(server);
 
-		dazeus::Network *n = new dazeus::Network(config);
+		dazeus::Network *n = new dazeus::Network(*config);
 		if(!n) return 4;
 
 		TestListener *l = new TestListener(n);

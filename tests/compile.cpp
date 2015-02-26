@@ -3,7 +3,7 @@
 
 int main() {
 	try {
-		dazeus::NetworkConfigPtr config = std::make_shared<dazeus::NetworkConfig>();
+		dazeus::NetworkConfig config;
 		dazeus::Network *n = new dazeus::Network(config);
 		if(!n) return 3;
 		delete n;

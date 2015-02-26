@@ -16,8 +16,8 @@ std::string dazeus::Network::toString(const Network *n)
 	if(n  == 0) {
 		res << "0";
 	} else {
-		const NetworkConfigPtr nc = n->config();
-		res << nc->displayName << ", " << Server::toString(n->activeServer());
+		const NetworkConfig &nc = n->config();
+		res << nc.displayName << ", " << Server::toString(n->activeServer());
 	}
 	res << "]";
 
@@ -26,10 +26,11 @@ std::string dazeus::Network::toString(const Network *n)
 
 /**
  * @brief Constructor.
+ * @deprecated NetworkConfigPtr is a deprecated type.
  */
 dazeus::Network::Network( const NetworkConfigPtr c )
 : activeServer_(0)
-, config_(c)
+, config_(*c)
 , undesirables_()
 , deleteServer_(false)
 , identifiedUsers_()
@@ -41,6 +42,22 @@ dazeus::Network::Network( const NetworkConfigPtr c )
 , nextPongDeadline_(0)
 {}
 
+/**
+ * @brief Constructor.
+ */
+dazeus::Network::Network(const NetworkConfig &c)
+: activeServer_(0)
+, config_(c)
+, undesirables_()
+, deleteServer_(false)
+, identifiedUsers_()
+, knownUsers_()
+, topics_()
+, networkListeners_()
+, nick_(c.nickName)
+, deadline_(0)
+, nextPongDeadline_(0)
+{}
 
 /**
  * @brief Destructor.
@@ -65,7 +82,7 @@ dazeus::Server *dazeus::Network::activeServer() const
  */
 bool dazeus::Network::autoConnectEnabled() const
 {
-	return config_->autoConnect;
+	return config_.autoConnect;
 }
 
 void dazeus::Network::action( std::string destination, std::string message )
@@ -131,7 +148,7 @@ struct ServerSorter {
 	ServerSorter(Network *n) : n_(n) {}
 	bool operator()(const ServerConfigPtr c1, const ServerConfigPtr c2) {
 		assert(c1->network == c2->network);
-		assert(c1->network == n_->config());
+		assert(c1->network->displayName == n_->config().displayName);
 
 		int prio1 = c1->priority + n_->serverUndesirability(c1);
 		int prio2 = c2->priority + n_->serverUndesirability(c2);
@@ -156,7 +173,7 @@ struct ServerSorter {
 };
 }
 
-const dazeus::NetworkConfigPtr dazeus::Network::config() const
+const dazeus::NetworkConfig &dazeus::Network::config() const
 {
 	return config_;
 }
@@ -172,7 +189,7 @@ void dazeus::Network::connectToNetwork( bool reconnect )
 	if( servers().size() == 0 )
 	{
 		printf("Trying to connect to network '%s', but there are no servers to connect to!\n",
-		config_->displayName.c_str());
+		config_.displayName.c_str());
 		return;
 	}
 
@@ -206,8 +223,8 @@ void dazeus::Network::connectToServer( ServerConfigPtr server, bool reconnect )
 
 	activeServer_ = new Server( server, this );
 	activeServer_->connectToServer();
-	if(config_->connectTimeout > 0) {
-		deadline_ = time(NULL) + config_->connectTimeout;
+	if(config_.connectTimeout > 0) {
+		deadline_ = time(NULL) + config_.connectTimeout;
 	}
 }
 
@@ -363,7 +380,7 @@ void dazeus::Network::sendWhois( std::string destination )
 
 const std::vector<dazeus::ServerConfigPtr> &dazeus::Network::servers() const
 {
-	return config_->servers;
+	return config_.servers;
 }
 
 
@@ -376,7 +393,7 @@ std::string dazeus::Network::nick() const
 
 std::string dazeus::Network::networkName() const
 {
-	return config()->name;
+	return config_.name;
 }
 
 
@@ -510,7 +527,7 @@ void dazeus::Network::checkTimeouts() {
 		if(time(NULL) > nextPongDeadline_) {
 			// We've passed the nextPongDeadline, send the next PING
 			nextPongDeadline_ = time(NULL) + 30;
-			deadline_ = time(NULL) + config_->pongTimeout;
+			deadline_ = time(NULL) + config_.pongTimeout;
 			activeServer_->ping();
 		}
 		return;
