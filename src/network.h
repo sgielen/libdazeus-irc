@@ -11,33 +11,12 @@
 #include <string>
 #include <map>
 #include <memory>
+#include "config.h"
 
 namespace dazeus {
 
 class Network;
 class Server;
-
-struct ServerConfig;
-typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
-
-struct NetworkConfig {
-  NetworkConfig() : nickName("DaZeus"), userName("dazeus"),
-      fullName("DaZeus"), autoConnect(false), connectTimeout(10), pongTimeout(30) {}
-
-  std::string name;
-  std::string displayName;
-  std::string nickName;
-  std::string userName;
-  std::string fullName;
-  std::string password;
-  std::vector<ServerConfigPtr> servers;
-  bool autoConnect;
-  time_t connectTimeout;
-  time_t pongTimeout;
-};
-
-__attribute__((deprecated))
-typedef std::shared_ptr<NetworkConfig> NetworkConfigPtr;
 
 class NetworkListener
 {

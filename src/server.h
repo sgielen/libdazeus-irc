@@ -14,22 +14,11 @@
 #include <memory>
 
 #include "network.h"
+#include "config.h"
 
 // #define SERVER_FULLDEBUG
 
 namespace dazeus {
-
-struct ServerConfig {
-  ServerConfig() : port(6667), priority(5), ssl(false), ssl_verify(true) {}
-
-  std::string toString() const;
-
-  std::string host;
-  uint16_t port;
-  uint8_t priority;
-  bool ssl;
-  bool ssl_verify;
-};
 
 class Server
 {
