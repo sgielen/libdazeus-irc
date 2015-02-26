@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
 		config->fullName = "fuLLn4m3";
 		config->password = "p4sSW0rd";
 
-		dazeus::ServerConfigPtr server = std::make_shared<dazeus::ServerConfig>();
-		server->host = argv[1];
-		server->port = port;
+		dazeus::ServerConfig server;
+		server.host = argv[1];
+		server.port = port;
 		config->servers.push_back(server);
 
 		dazeus::Network *n = new dazeus::Network(*config);

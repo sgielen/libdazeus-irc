@@ -65,7 +65,7 @@ class Network
     };
 
     bool                        autoConnectEnabled() const;
-    const std::vector<ServerConfigPtr> &servers() const;
+    const std::vector<ServerConfig> &servers() const;
     std::string                 nick() const;
     Server                     *activeServer() const;
     const NetworkConfig        &config() const;
@@ -101,7 +101,7 @@ class Network
 
     void flagUndesirableServer( const ServerConfig &sc );
     void serverIsActuallyOkay( const ServerConfig &sc );
-    void connectToServer( ServerConfigPtr conf, bool reconnect );
+    void connectToServer(const ServerConfig &conf, bool reconnect);
 
     Server               *activeServer_;
     NetworkConfig config_;

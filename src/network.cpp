@@ -147,13 +147,13 @@ namespace dazeus {
 struct ServerSorter {
 	private:
 	Network *n_;
-	std::map<const ServerConfigPtr, int> randomValues;
+	std::map<std::string, int> randomValues;
 
 	public:
 	ServerSorter(Network *n) : n_(n) {}
-	bool operator()(const ServerConfigPtr c1, const ServerConfigPtr c2) {
-		int prio1 = c1->priority + n_->serverUndesirability(*c1);
-		int prio2 = c2->priority + n_->serverUndesirability(*c2);
+	bool operator()(const ServerConfig c1, const ServerConfig c2) {
+		int prio1 = c1.priority + n_->serverUndesirability(c1);
+		int prio2 = c2.priority + n_->serverUndesirability(c2);
 
 		if(prio1 != prio2) {
 			return prio1 < prio2;
@@ -164,13 +164,15 @@ struct ServerSorter {
 		// comparator must be consistent and transitive, so
 		// subsequent calls to the operator()() function must agree
 		// with the return value of this call.
-		if(!contains(randomValues, c1)) {
-			randomValues[c1] = rand();
+		std::string id1 = c1.toString();
+		std::string id2 = c2.toString();
+		if(!contains(randomValues, id1)) {
+			randomValues[id1] = rand();
 		}
-		if(!contains(randomValues, c2)) {
-			randomValues[c2] = rand();
+		if(!contains(randomValues, id2)) {
+			randomValues[id2] = rand();
 		}
-		return randomValues[c1] < randomValues[c2];
+		return randomValues[id1] < randomValues[id2];
 	}
 };
 }
@@ -198,18 +200,18 @@ void dazeus::Network::connectToNetwork( bool reconnect )
 	// Find the best server to use
 
 	// First, sort the list by priority and earlier failures
-	std::vector<ServerConfigPtr> sortedServers = servers();
+	std::vector<ServerConfig> sortedServers = servers();
 	std::sort( sortedServers.begin(), sortedServers.end(), ServerSorter(this) );
 
 	// Then, take the first one and create a Server around it
-	ServerConfigPtr best = sortedServers[0];
+	const ServerConfig &best = sortedServers[0];
 
 	// And set it as the active server, and connect.
 	connectToServer( best, true );
 }
 
 
-void dazeus::Network::connectToServer( ServerConfigPtr server, bool reconnect )
+void dazeus::Network::connectToServer(const ServerConfig &server, bool reconnect)
 {
 	if( !reconnect && activeServer_ )
 		return;
@@ -223,7 +225,7 @@ void dazeus::Network::connectToServer( ServerConfigPtr server, bool reconnect )
 		delete(activeServer_);
 	}
 
-	activeServer_ = new Server(*server, this);
+	activeServer_ = new Server(server, this);
 	activeServer_->connectToServer();
 	if(config_.connectTimeout > 0) {
 		deadline_ = time(NULL) + config_.connectTimeout;
@@ -380,7 +382,7 @@ void dazeus::Network::sendWhois( std::string destination )
 	activeServer_->whois(destination);
 }
 
-const std::vector<dazeus::ServerConfigPtr> &dazeus::Network::servers() const
+const std::vector<dazeus::ServerConfig> &dazeus::Network::servers() const
 {
 	return config_.servers;
 }

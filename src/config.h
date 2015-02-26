@@ -23,8 +23,6 @@ struct ServerConfig {
   bool ssl_verify;
 };
 
-typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
-
 struct NetworkConfig {
   NetworkConfig() : nickName("DaZeus"), userName("dazeus"),
       fullName("DaZeus"), autoConnect(false), connectTimeout(10), pongTimeout(30) {}
@@ -35,7 +33,7 @@ struct NetworkConfig {
   std::string userName;
   std::string fullName;
   std::string password;
-  std::vector<ServerConfigPtr> servers;
+  std::vector<ServerConfig> servers;
   bool autoConnect;
   time_t connectTimeout;
   time_t pongTimeout;
