@@ -23,19 +23,17 @@ int main(int argc, char *argv[]) {
 		server.port = port;
 		config.servers.push_back(server);
 
-		dazeus::Network *n = new dazeus::Network(config);
-		if(!n) return 4;
+		dazeus::Network n(config);
 
-		n->connectToNetwork(false);
-		n->run();
+		n.connectToNetwork(false);
+		n.run();
 		config.nickName = "connecttwo";
-		n->resetConfig(config);
-		n->connectToNetwork(true);
-		n->run();
+		n.resetConfig(config);
+		n.connectToNetwork(true);
+		n.run();
 
-		delete n;
+		return 0;
 	} catch(std::runtime_error e) {
 		return 1;
 	}
-	return 0;
 }

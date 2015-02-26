@@ -26,16 +26,13 @@ int main(int argc, char *argv[]) {
 		server.port = port;
 		config.servers.push_back(server);
 
-		dazeus::Network *n = new dazeus::Network(config);
-		if(!n) return 4;
+		dazeus::Network n(config);
 
-		n->connectToNetwork(false);
+		n.connectToNetwork(false);
 		// run until disconnect
-		n->run();
-
-		delete n;
+		n.run();
+		return 0;
 	} catch(std::runtime_error e) {
 		return 1;
 	}
-	return 0;
 }

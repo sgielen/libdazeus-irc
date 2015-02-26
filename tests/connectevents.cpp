@@ -154,18 +154,15 @@ int main(int argc, char *argv[]) {
 		server.port = port;
 		config.servers.push_back(server);
 
-		dazeus::Network *n = new dazeus::Network(config);
-		if(!n) return 4;
+		dazeus::Network n(config);
 
-		TestListener *l = new TestListener(n);
-		n->addListener(l);
-		n->connectToNetwork(false);
-		n->run();
+		TestListener l(&n);
+		n.addListener(&l);
+		n.connectToNetwork(false);
+		n.run();
 
-		delete l;
-		delete n;
+		return 0;
 	} catch(std::runtime_error e) {
 		return 1;
 	}
-	return 0;
 }
