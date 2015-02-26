@@ -26,8 +26,8 @@ std::string dazeus::Server::toString(const Server *s)
 	if(s  == 0 ) {
 		res << "0";
 	} else {
-		const ServerConfigPtr sc = s->config();
-		res << sc->host << ":" << sc->port;
+		const ServerConfig &sc = s->config();
+		res << sc.host << ":" << sc.port;
 	}
 	res << "]";
 
@@ -44,8 +44,8 @@ std::string dazeus::ServerConfig::toString() const {
 	return "ServerConfig[" + ss.str() + "]";
 }
 
-dazeus::Server::Server( const ServerConfigPtr c, Network *n )
-: config_(c)
+dazeus::Server::Server(const ServerConfig &sc, Network *n)
+: config_(sc)
 , motd_()
 , network_(n)
 , irc_(0)
@@ -60,7 +60,7 @@ dazeus::Server::~Server()
 	irc_destroy_session(IRC);
 }
 
-const dazeus::ServerConfigPtr dazeus::Server::config() const
+const dazeus::ServerConfig &dazeus::Server::config() const
 {
 	return config_;
 }
@@ -310,7 +310,6 @@ void irc_callback(irc_session_t *s, const char *e, const char *o, const char **p
 void dazeus::Server::connectToServer()
 {
 	printf("Connecting to server: %s\n", toString(this).c_str());
-	assert( !config_->network->nickName.length() == 0 );
 
 	irc_callbacks_t callbacks;
 	memset(&callbacks, 0, sizeof(irc_callbacks_t));
@@ -343,12 +342,12 @@ void dazeus::Server::connectToServer()
 	}
 	irc_set_ctx(IRC, this);
 
-	assert( config_->network->nickName.length() != 0 );
-	std::string host = config_->host;
-	if(config_->ssl) {
+	assert(!network_->config().nickName.empty());
+	std::string host = config_.host;
+	if(config_.ssl) {
 #if defined(LIBIRC_OPTION_SSL_NO_VERIFY)
 		host = "#" + host;
-		if(!config_->ssl_verify) {
+		if(!config_.ssl_verify) {
 			std::cerr << "Warning: connecting without SSL certificate verification." << std::endl;
 			irc_option_set(IRC, LIBIRC_OPTION_SSL_NO_VERIFY);
 		}
@@ -359,9 +358,9 @@ void dazeus::Server::connectToServer()
 #endif
 	}
 	irc_connect(IRC, host.c_str(),
-		config_->port,
-		config_->network->password.c_str(),
-		config_->network->nickName.c_str(),
-		config_->network->userName.c_str(),
-		config_->network->fullName.c_str());
+		config_.port,
+		network_->config().password.c_str(),
+		network_->config().nickName.c_str(),
+		network_->config().userName.c_str(),
+		network_->config().fullName.c_str());
 }

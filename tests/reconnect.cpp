@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
 
 		dazeus::ServerConfigPtr server = std::make_shared<dazeus::ServerConfig>();
 		server->host = argv[1];
-		server->network = config;
 		server->port = port;
 		config->servers.push_back(server);
 
@@ -30,6 +29,7 @@ int main(int argc, char *argv[]) {
 		n->connectToNetwork(false);
 		n->run();
 		config->nickName = "connecttwo";
+		n->resetConfig(*config);
 		n->connectToNetwork(true);
 		n->run();
 

@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
 
 		dazeus::ServerConfigPtr server = std::make_shared<dazeus::ServerConfig>();
 		server->host = argv[1];
-		server->network = config;
 		server->port = port;
 		config->servers.push_back(server);
 

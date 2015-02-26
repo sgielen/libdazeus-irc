@@ -59,6 +59,8 @@ class Network
     Network(const NetworkConfig &c);
     ~Network();
 
+    void resetConfig(const NetworkConfig &c);
+
     static std::string toString(const Network *n);
     void               addListener( NetworkListener *nl ) {
       networkListeners_.push_back(nl);
@@ -123,7 +125,7 @@ class Network
     void connectToServer( ServerConfigPtr conf, bool reconnect );
 
     Server               *activeServer_;
-    const NetworkConfig config_;
+    NetworkConfig config_;
     std::map<std::string,int> undesirables_;
     bool                  deleteServer_;
     std::vector<std::string>        identifiedUsers_;

@@ -59,6 +59,11 @@ dazeus::Network::Network(const NetworkConfig &c)
 , nextPongDeadline_(0)
 {}
 
+void dazeus::Network::resetConfig(const NetworkConfig &c)
+{
+	config_ = c;
+}
+
 /**
  * @brief Destructor.
  */
@@ -147,9 +152,6 @@ struct ServerSorter {
 	public:
 	ServerSorter(Network *n) : n_(n) {}
 	bool operator()(const ServerConfigPtr c1, const ServerConfigPtr c2) {
-		assert(c1->network == c2->network);
-		assert(c1->network->displayName == n_->config().displayName);
-
 		int prio1 = c1->priority + n_->serverUndesirability(*c1);
 		int prio2 = c2->priority + n_->serverUndesirability(*c2);
 
@@ -221,7 +223,7 @@ void dazeus::Network::connectToServer( ServerConfigPtr server, bool reconnect )
 		delete(activeServer_);
 	}
 
-	activeServer_ = new Server( server, this );
+	activeServer_ = new Server(*server, this);
 	activeServer_->connectToServer();
 	if(config_.connectTimeout > 0) {
 		deadline_ = time(NULL) + config_.connectTimeout;
@@ -302,7 +304,7 @@ void dazeus::Network::onFailedConnection()
 	// Flag old server as undesirable
 	// Don't destroy it here yet; it is still in the stack. It will be destroyed
 	// in processDescriptors().
-	flagUndesirableServer( *activeServer_->config() );
+	flagUndesirableServer(activeServer_->config());
 	deleteServer_ = true;
 }
 
@@ -478,7 +480,7 @@ void dazeus::Network::slotIrcEvent(const std::string &event, const std::string &
 #define MIN(a) if(params.size() < a) { fprintf(stderr, "Too few parameters for event %s\n", event.c_str()); return; }
 	if(event == "CONNECT") {
 		nextPongDeadline_ = time(NULL) + 30;
-		serverIsActuallyOkay(*activeServer_->config());
+		serverIsActuallyOkay(activeServer_->config());
 	} else if(event == "JOIN") {
 		MIN(1);
 		joinedChannel(origin, receiver);
@@ -539,7 +541,7 @@ void dazeus::Network::checkTimeouts() {
 	}
 
 	// Connection didn't finish in time, disconnect and try again
-	flagUndesirableServer(*activeServer()->config());
+	flagUndesirableServer(activeServer()->config());
 	activeServer_->disconnectFromServer(dazeus::Network::TimeoutReason);
 	onFailedConnection();
 	// no need to delete the server later, though: we can do it from here

@@ -19,9 +19,6 @@
 
 namespace dazeus {
 
-struct NetworkConfig;
-typedef std::shared_ptr<NetworkConfig> NetworkConfigPtr;
-
 struct ServerConfig {
   ServerConfig() : port(6667), priority(5), ssl(false), ssl_verify(true) {}
 
@@ -30,18 +27,16 @@ struct ServerConfig {
   std::string host;
   uint16_t port;
   uint8_t priority;
-  NetworkConfigPtr network;
   bool ssl;
   bool ssl_verify;
 };
-typedef std::shared_ptr<ServerConfig> ServerConfigPtr;
 
 class Server
 {
 public:
-	  Server(const ServerConfigPtr c, Network *n);
-	  ~Server();
-	const ServerConfigPtr config() const;
+	Server(const ServerConfig &sc, Network *n);
+	~Server();
+	const ServerConfig &config() const;
 	std::string motd() const;
 	void addDescriptors(fd_set *in_set, fd_set *out_set, int *maxfd);
 	void processDescriptors(fd_set *in_set, fd_set *out_set);
@@ -71,7 +66,7 @@ private:
 
 	void ircEventMe( const std::string &eventname, const std::string &destination, const std::string &message);
 
-	const ServerConfigPtr config_;
+	ServerConfig config_;
 	std::string   motd_;
 	Network  *network_;
 	void *irc_;
