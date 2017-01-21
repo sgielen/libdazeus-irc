@@ -14,7 +14,7 @@ SET(LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "The place where the 
 SET(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "The place where the header files will be stored")
 
 find_package(LibIRCClient REQUIRED)
-include_directories(${LibIRCClient_INCLUDE_DIRS})
+find_package(OpenSSL REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(tests)
